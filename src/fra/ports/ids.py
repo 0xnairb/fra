@@ -1,0 +1,19 @@
+"""Provider-independent ID generation boundary."""
+
+from typing import Protocol
+
+from fra.domain.ids import ClaimId, EvidenceId, MandateId, ResearchRunId, SignalId, StageId
+
+
+class IdGenerator(Protocol):
+    def research_run_id(self) -> ResearchRunId: ...
+
+    def mandate_id(self) -> MandateId: ...
+
+    def evidence_id(self) -> EvidenceId: ...
+
+    def claim_id(self) -> ClaimId: ...
+
+    def signal_id(self) -> SignalId: ...
+
+    def stage_id(self) -> StageId: ...

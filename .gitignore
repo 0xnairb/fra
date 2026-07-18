@@ -1,0 +1,39 @@
+# Operating systems and editors
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Python bytecode and environments
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Test, type-check, lint, and coverage output
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.hypothesis/
+.mypy_cache/
+.nox/
+.pytest_cache/
+.ruff_cache/
+.tox/
+
+# Build output
+build/
+dist/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# User-owned FRA configuration and durable research output
+fra.toml
+fra-workspace/

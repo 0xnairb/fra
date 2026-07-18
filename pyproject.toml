@@ -1,0 +1,54 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fra"
+description = "Local-first finance research agents"
+readme = "README.md"
+requires-python = ">=3.12"
+dynamic = ["version"]
+dependencies = [
+  "pydantic>=2.11,<3",
+  "pyyaml>=6.0.2,<7",
+  "rich>=14,<15",
+  "typer>=0.16,<1",
+]
+
+[project.scripts]
+fra = "fra.bootstrap:main"
+
+[dependency-groups]
+dev = [
+  "build>=1.2.2,<2",
+  "mypy>=1.15,<2",
+  "pytest>=8.3,<9",
+  "pytest-cov>=6,<8",
+  "ruff>=0.11,<1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fra"]
+
+[tool.hatch.version]
+path = "src/fra/version.py"
+
+[tool.hatch.build.targets.sdist]
+include = ["/src", "/tests", "/README.md", "/fra.example.toml"]
+
+[tool.pytest.ini_options]
+addopts = "--strict-config --strict-markers"
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src", "tests"]

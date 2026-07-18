@@ -1,0 +1,52 @@
+[workspace]
+root = "./fra-workspace"
+usage_profile = "local_personal_research"
+
+[agent]
+provider = "codex_cli"
+timeout_seconds = 900
+
+[agent.options]
+binary = "codex"
+profile = "fra"
+sandbox = "read-only"
+
+[data_sources.coingecko]
+enabled = true
+roles = ["primary", "cross_check"]
+
+[data_sources.coingecko.options]
+base_url = "https://api.coingecko.com/api/v3"
+api_key_env = "COINGECKO_DEMO_API_KEY"
+
+[data_sources.yfinance]
+enabled = false
+roles = ["fallback"]
+allowed_usage_profiles = ["local_personal_research"]
+
+[data_sources.eia]
+enabled = true
+roles = ["primary"]
+
+[data_sources.eia.options]
+api_key_env = "EIA_API_KEY"
+
+[data_sources.world_bank_indicators]
+enabled = true
+roles = ["primary"]
+
+[source_policy]
+material_claim_minimum_authority = "official_or_corroborated"
+unknown_usage_rights = "reject"
+discovery_only_can_support_material_claims = false
+require_point_in_time_for_forecasts = true
+
+[dashboard]
+refresh_seconds = 5
+plain_text = false
+
+[storage]
+provider = "markdown"
+
+[storage.options]
+root = "./fra-workspace"
