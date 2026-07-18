@@ -14,9 +14,10 @@ Linux, macOS, and Windows; installed-agent and live-source gates are explicit op
 | Installed structured output | Codex and Claude smokes both passed |
 | Same installed-agent WP8 workflow | Codex and Claude fixture-source allocation runs both passed |
 | Live WP5 workflow | Unexecuted: `COINGECKO_DEMO_API_KEY` was not available in the environment |
-| Clean committed checkout | Pending the release-candidate commit |
+| Hosted cross-platform matrix | Configured for Linux, macOS, and Windows; unexecuted until the release candidate is pushed |
+| Clean committed checkout | Passed from `7af8d037bb57da53ab931a25e90134a72a3b70df` in a fresh local clone |
 
-The README status remains conservative while either of the last two rows is pending.
+The README status remains conservative while any required operator or hosted gate is unexecuted.
 
 ## Release commands
 
