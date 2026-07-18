@@ -16,10 +16,12 @@ This documentation describes the MVP and the extension boundaries that allow FRA
 8. [Data-source strategy and feasibility](08-data-source-strategy.md)
 9. [CLI dashboard and Markdown output contract](09-cli-dashboard-and-output-contract.md)
 10. [Implementation plan](10-implementation-plan.md)
+11. [Operations and recovery](11-operations-and-recovery.md)
+12. [WP2-WP9 release traceability](12-release-traceability.md)
 
 ## Architecture in One Sentence
 
-FRA's application core coordinates signaling and research through stable ports; a source registry routes typed evidence requirements to permitted adapters, Markdown repositories preserve every result, and the CLI dashboard projects those results for observation.
+FRA's application core coordinates signaling and research through stable ports; a source registry and router execute permitted adapters for typed evidence requirements, Markdown repositories preserve every result, and the CLI dashboard projects those results for observation.
 
 ## Product Positioning
 

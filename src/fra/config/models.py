@@ -1,5 +1,6 @@
 """Strict models for the FRA TOML boundary."""
 
+from datetime import date, datetime
 from pathlib import Path
 from typing import Annotated, Literal
 
@@ -14,7 +15,7 @@ HttpsUrl = Annotated[str, StringConstraints(pattern=r"^https://[^\s]+$")]
 PositiveInteger = Annotated[int, Field(strict=True, gt=0)]
 StrictBoolean = Annotated[bool, Field(strict=True)]
 SourceRole = Literal["primary", "fallback", "cross_check", "discovery"]
-UsageProfile = Literal["local_personal_research", "commercial_research"]
+UsageProfile = Literal["local_personal_research", "internal_research", "commercial"]
 
 
 def _primary_roles() -> list[SourceRole]:
@@ -34,7 +35,7 @@ def _personal_usage() -> list[UsageProfile]:
 
 
 def _all_usage_profiles() -> list[UsageProfile]:
-    return ["local_personal_research", "commercial_research"]
+    return ["local_personal_research", "internal_research", "commercial"]
 
 
 class StrictConfigModel(BaseModel):
@@ -66,6 +67,33 @@ class CoinGeckoOptions(StrictConfigModel):
 
 
 class EiaOptions(StrictConfigModel):
+    base_url: HttpsUrl = "https://api.eia.gov/v2/petroleum/stoc/wstk/data"
+    api_key_env: EnvironmentVariableName | None = None
+
+
+class WorldBankOptions(StrictConfigModel):
+    base_url: HttpsUrl = "https://api.worldbank.org/v2"
+
+
+class FredOptions(StrictConfigModel):
+    base_url: HttpsUrl = "https://api.stlouisfed.org/fred/series/observations"
+    api_key_env: EnvironmentVariableName | None = None
+
+
+class PinkSheetOptions(StrictConfigModel):
+    workbook_url: HttpsUrl = (
+        "https://thedocs.worldbank.org/en/doc/5d903e848db1d1b83e0ec8f744e55570-"
+        "0350012021/related/CMO-Historical-Data-Monthly.xlsx"
+    )
+
+
+class SecEdgarOptions(StrictConfigModel):
+    base_url: HttpsUrl = "https://data.sec.gov"
+    user_agent: NonEmptyString | None = None
+
+
+class OpenDartOptions(StrictConfigModel):
+    base_url: HttpsUrl = "https://engopendart.fss.or.kr/engapi"
     api_key_env: EnvironmentVariableName | None = None
 
 
@@ -98,14 +126,89 @@ class WorldBankSourceConfig(StrictConfigModel):
     enabled: StrictBoolean = False
     roles: list[SourceRole] = Field(default_factory=_primary_roles)
     allowed_usage_profiles: list[UsageProfile] = Field(default_factory=_all_usage_profiles)
-    options: EmptySourceOptions = Field(default_factory=EmptySourceOptions)
+    options: WorldBankOptions = Field(default_factory=WorldBankOptions)
+
+
+class FredSourceConfig(StrictConfigModel):
+    enabled: StrictBoolean = False
+    roles: list[SourceRole] = Field(default_factory=_primary_roles)
+    allowed_usage_profiles: list[UsageProfile] = Field(default_factory=_all_usage_profiles)
+    options: FredOptions = Field(default_factory=FredOptions)
+
+
+class PinkSheetSourceConfig(StrictConfigModel):
+    enabled: StrictBoolean = False
+    roles: list[SourceRole] = Field(default_factory=_primary_roles)
+    allowed_usage_profiles: list[UsageProfile] = Field(default_factory=_all_usage_profiles)
+    options: PinkSheetOptions = Field(default_factory=PinkSheetOptions)
+
+
+class SecEdgarSourceConfig(StrictConfigModel):
+    enabled: StrictBoolean = False
+    roles: list[SourceRole] = Field(default_factory=_primary_roles)
+    allowed_usage_profiles: list[UsageProfile] = Field(default_factory=_all_usage_profiles)
+    options: SecEdgarOptions = Field(default_factory=SecEdgarOptions)
+
+
+class OpenDartSourceConfig(StrictConfigModel):
+    enabled: StrictBoolean = False
+    roles: list[SourceRole] = Field(default_factory=_primary_roles)
+    allowed_usage_profiles: list[UsageProfile] = Field(default_factory=_all_usage_profiles)
+    options: OpenDartOptions = Field(default_factory=OpenDartOptions)
+
+
+class PluginSourceConfig(StrictConfigModel):
+    enabled: StrictBoolean = False
+    roles: list[SourceRole] = Field(default_factory=_fallback_roles)
+    allowed_usage_profiles: list[UsageProfile] = Field(default_factory=_personal_usage)
+
+
+class ManualDocumentConfig(StrictConfigModel):
+    provider_record_id: NonEmptyString
+    title: NonEmptyString
+    url: HttpsUrl
+    published_at: datetime | None = None
+    updated_at: datetime | None = None
+    corrects_provider_record_id: NonEmptyString | None = None
+    withdrawn: StrictBoolean = False
+
+
+class ManualDocumentsSourceConfig(StrictConfigModel):
+    enabled: StrictBoolean = False
+    roles: list[SourceRole] = Field(default_factory=_primary_roles)
+    allowed_usage_profiles: list[UsageProfile] = Field(default_factory=_all_usage_profiles)
+    terms_url: HttpsUrl = "https://example.invalid/manual-source-terms"
+    terms_reviewed_at: date = date(1970, 1, 1)
+    documents: list[ManualDocumentConfig] = Field(default_factory=list)
+
+
+class RssAtomOptions(StrictConfigModel):
+    feed_url: HttpsUrl = "https://example.invalid/feed.xml"
+
+
+class RssAtomSourceConfig(StrictConfigModel):
+    enabled: StrictBoolean = False
+    roles: list[SourceRole] = Field(default_factory=_primary_roles)
+    allowed_usage_profiles: list[UsageProfile] = Field(default_factory=_all_usage_profiles)
+    terms_url: HttpsUrl = "https://www.rssboard.org/rss-specification"
+    terms_reviewed_at: date = date(1970, 1, 1)
+    options: RssAtomOptions = Field(default_factory=RssAtomOptions)
 
 
 class DataSourcesConfig(StrictConfigModel):
+    manual_documents: ManualDocumentsSourceConfig = Field(
+        default_factory=ManualDocumentsSourceConfig
+    )
+    rss_atom: RssAtomSourceConfig = Field(default_factory=RssAtomSourceConfig)
     coingecko: CoinGeckoSourceConfig = Field(default_factory=CoinGeckoSourceConfig)
     yfinance: YFinanceSourceConfig = Field(default_factory=YFinanceSourceConfig)
     eia: EiaSourceConfig = Field(default_factory=EiaSourceConfig)
     world_bank_indicators: WorldBankSourceConfig = Field(default_factory=WorldBankSourceConfig)
+    world_bank_pink_sheet: PinkSheetSourceConfig = Field(default_factory=PinkSheetSourceConfig)
+    fred_alfred: FredSourceConfig = Field(default_factory=FredSourceConfig)
+    sec_edgar: SecEdgarSourceConfig = Field(default_factory=SecEdgarSourceConfig)
+    opendart: OpenDartSourceConfig = Field(default_factory=OpenDartSourceConfig)
+    plugins: dict[str, PluginSourceConfig] = Field(default_factory=dict)
 
 
 class SourcePolicyConfig(StrictConfigModel):

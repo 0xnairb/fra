@@ -1,0 +1,23 @@
+{
+  "case_id": "oil-fertilizer-2022-02-24",
+  "knowledge_cutoff_at": "2022-02-24T23:59:00Z",
+  "horizon_days": 30,
+  "series": {
+    "WCESTUS1": [["2022-01-21", "420.0"], ["2022-02-18", "411.6"]],
+    "Crude oil, average": [["2022-01", "85.53"], ["2022-02", "93.95"]],
+    "DAP": [["2022-01", "607.5"], ["2022-02", "747.1"]],
+    "DCOILWTICO": [["2022-02-01", "88.22"], ["2022-02-23", "92.14"]]
+  },
+  "company_fact": {
+    "cik": "0001657853",
+    "entity_name": "Fixture Fertilizer Corp",
+    "concept": "CostOfRevenue",
+    "value": "780000000",
+    "filed_at": "2022-02-18T00:00:00Z"
+  },
+  "known_outcome": {
+    "resolved_at": "2022-04-01T00:00:00Z",
+    "value": "true",
+    "evidence_summary": "Frozen outcome fixture: pressure index remained positive at horizon"
+  }
+}

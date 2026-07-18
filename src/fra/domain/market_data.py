@@ -66,10 +66,44 @@ class MarketBar:
 
 
 @dataclass(frozen=True, slots=True)
+class MarketObservation:
+    """One provider-normalized market observation without invented OHLC values."""
+
+    instrument_id: InstrumentId
+    observed_at: datetime
+    price: Decimal
+    market_cap: Decimal | None
+    volume: Decimal | None
+    currency: Currency
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "observed_at", as_utc(self.observed_at, field="observed_at"))
+        for field in ("price", "market_cap", "volume"):
+            value = getattr(self, field)
+            if value is not None and (not value.is_finite() or value < 0):
+                raise DomainValidationError(
+                    f"market observation {field} must be finite and non-negative"
+                )
+
+
+@dataclass(frozen=True, slots=True)
 class MarketSeries:
     instrument_id: InstrumentId
-    bars: tuple[MarketBar, ...]
+    observations: tuple[MarketObservation, ...]
     currency: Currency
+    bars: tuple[MarketBar, ...] = ()
+
+    def __post_init__(self) -> None:
+        if not self.observations and not self.bars:
+            raise DomainValidationError("market series requires observations or bars")
+        times = [item.observed_at for item in self.observations]
+        if times != sorted(times) or len(times) != len(set(times)):
+            raise DomainValidationError("market observations must be unique and chronological")
+        if any(
+            item.instrument_id != self.instrument_id or item.currency != self.currency
+            for item in self.observations
+        ):
+            raise DomainValidationError("market observations must match their series")
 
 
 @dataclass(frozen=True, slots=True)

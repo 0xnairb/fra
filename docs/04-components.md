@@ -34,7 +34,6 @@ timeout_seconds = 900
 
 [agent.options]
 binary = "codex"
-profile = "fra"
 sandbox = "read-only"
 
 [data_sources.coingecko]
@@ -245,7 +244,7 @@ The registry contains constructed adapters indexed by typed capabilities. Built-
 
 The router filters sources by capability, usage rights, scope, resolution, history, authority, freshness, point-in-time cutoff, cost, quota, and health. It assigns one of four explicit roles: `primary`, `fallback`, `cross_check`, or `discovery`.
 
-Routing produces a decision record containing candidates, exclusions, selected providers, and policy version. Sources remain separate evidence when they disagree. The router never silently averages values or downgrades from official to unofficial authority.
+Routing produces a decision record containing candidates, exclusions, selected providers, and policy version. Execution returns the provider ID, assigned role, normalized value, and any typed selected-source failures. Sources remain separate evidence when they disagree. The router never silently averages values or downgrades from official to unofficial authority.
 
 ### Initial adapters
 
@@ -363,20 +362,21 @@ Each workflow declares:
 - verification rules;
 - final report sections.
 
-## `EvidenceService`
+## Workflow evidence collection
 
 Responsibilities:
 
-- convert plan data requirements into provider requests;
+- validate the typed plan requirements required by the selected workflow;
+- convert those requirements into FRA-owned provider requests;
 - resolve instruments and surface ambiguity;
-- ask `SourceRouter` for compatible typed providers;
-- call market, macro, filing, event, trade, physical-flow, positioning, and on-chain ports;
-- normalize and deduplicate evidence;
+- ask `SourceRouter` to select and execute compatible typed providers;
+- convert normalized envelopes into persisted evidence and calculations;
 - preserve conflicting observations and independence groups;
-- calculate freshness and expiry;
-- persist the routing decision, request fingerprint, and source policy version;
-- persist evidence before returning it to the agent;
-- produce bounded evidence bundles.
+- preserve request fingerprints, source policy, provenance, freshness, and cutoffs;
+- produce bounded durable bundles before returning control to the agent.
+
+These responsibilities currently live in the cohesive workflow modules and shared router. Extract an
+`EvidenceService` only when two workflows share enough request-conversion behavior to justify it.
 
 ## `VerificationService`
 

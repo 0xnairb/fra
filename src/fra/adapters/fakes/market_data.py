@@ -63,8 +63,18 @@ class FakeMarketDataProvider(MarketDataProvider):
         return HealthStatus(HealthState.HEALTHY, self._now, "fake market ready")
 
     async def resolve_instrument(self, query: InstrumentQuery) -> tuple[InstrumentMatch, ...]:
-        del query
-        return self._matches
+        text = query.text.casefold()
+        matches = tuple(
+            item
+            for item in self._matches
+            if text
+            in {
+                item.instrument.name.casefold(),
+                (item.instrument.display_symbol or "").casefold(),
+                *(alias.value.casefold() for alias in item.instrument.aliases),
+            }
+        )
+        return matches
 
     async def quote(self, instrument: InstrumentRef) -> DataEnvelope[MarketQuote]:
         try:

@@ -2,6 +2,7 @@
 
 from enum import IntEnum
 
+from fra.domain.errors import DomainValidationError, RepositoryCorruptError, RepositoryNotFoundError
 from fra.errors import (
     ConfigurationError,
     CorruptDataError,
@@ -31,6 +32,9 @@ def exit_code_for(error: BaseException) -> ExitCode:
         (ConfigurationError, ExitCode.CONFIGURATION),
         (ExternalDependencyError, ExitCode.EXTERNAL_DEPENDENCY),
         (CorruptDataError, ExitCode.CORRUPTION),
+        (RepositoryCorruptError, ExitCode.CORRUPTION),
+        (RepositoryNotFoundError, ExitCode.USER_INPUT_REQUIRED),
+        (DomainValidationError, ExitCode.USER_INPUT_REQUIRED),
     )
     for error_type, code in mappings:
         if isinstance(error, error_type):

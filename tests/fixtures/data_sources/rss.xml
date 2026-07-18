@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Official Releases</title>
+    <link>https://official.example/releases</link>
+    <description>Fixture official releases</description>
+    <item>
+      <guid>release-001</guid>
+      <title>Policy rate decision</title>
+      <link>https://official.example/releases/001</link>
+      <pubDate>Fri, 17 Jul 2026 08:30:00 GMT</pubDate>
+      <description>The committee kept its policy rate unchanged.</description>
+    </item>
+  </channel>
+</rss>

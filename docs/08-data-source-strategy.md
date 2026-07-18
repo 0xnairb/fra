@@ -71,7 +71,7 @@ Every candidate is evaluated on:
 | CFTC Commitments of Traders | Market positioning | Public API and annual files; historical futures positioning | Tuesday observations are normally published Friday; not real-time and not trader intent | **Future:** crowding and positioning evidence |
 | Korea OpenDART | Company exposure | Free account/key; disclosures, original documents, XBRL and financial statements | Key management, Korean identifiers, translations and report taxonomy | **Future:** preferred South Korea filing source |
 | KRX Open API | Market reaction | Account, authentication key and per-service approval; daily statistics from 2010 | Approval and redistribution terms; real-time data requires separate arrangements | **Future:** authoritative South Korea market history |
-| Vietnam official exchanges and disclosures | Market and company exposure | Public web disclosures and reports | No stable, general-purpose official public API was identified in this review | **Research gap:** manual/RSS adapters first; provider spike before claiming authority |
+| Vietnam official exchanges and disclosures | Market and company exposure | Public web disclosures and reports; contracted exchange data products exist | No approved API/service agreement in this release | **Completed decision:** no authoritative provider approved; pack remains partial; manual/RSS first and yfinance fallback only |
 | UCDP | Historical outcomes | Free token by request; georeferenced and candidate conflict datasets | Research access request and publication cadence make it a base-rate source, not breaking news | **Future:** conflict base rates and forecast resolution |
 | ACLED | Historical and current conflict | Authenticated API and rich event data | Commercial use needs a corporate license; AI and competitive-use restrictions are material | **Excluded by default:** integrate only after explicit legal approval |
 
@@ -205,15 +205,24 @@ Sources: [OpenDART introduction](https://opendart.fss.or.kr/intro/main.do), [Ope
 
 #### Vietnam
 
-This review did not find a stable, documented, general-purpose official public API equivalent to EDGAR, OpenDART, or KRX. FRA should not describe yfinance as authoritative Vietnam coverage. The initial Vietnam pack should support:
+The 2026-07-19 release decision selects no authoritative Vietnam price provider. Official exchange
+web pages expose market data, and HOSE/HNX offer data-service products, but FRA has no approved
+service agreement, usage/retention decision, stable adapter contract, or point-in-time proof for
+them. This is a completed no-provider decision for the release—not an unresolved implementation
+choice. FRA must not describe yfinance as authoritative Vietnam coverage. The initial Vietnam pack
+supports:
 
 - configured official disclosure URLs and feeds where available;
 - user-supplied documents;
 - explicit symbol and exchange mappings;
 - yfinance only under the personal-research fallback policy;
-- a dedicated source spike before implementation claims production coverage.
+- a new provider review only after exchange/licensed access and terms are recorded.
 
-An authoritative commercial or exchange agreement can later be added behind the same ports.
+An authoritative commercial or exchange agreement can later be added behind the same ports. Current
+official references include the
+[HNX trading-data surface](https://www.hnx.vn/vi-vn/co-phieu-etfs/du-lieu-thi-truong-ny.html),
+[HNX information packages](https://www.hnx.vn/vi-vn/dich-vu-cctt/du-lieu-cung-cap-list.html), and
+[HOSE Market Data Feed/Webservice pricing](https://staticfile.hsx.vn/Uploads/UploadDocuments/2406142/Bieu%20gia%20dich%20vu%20cung%20cap%20tin.pdf).
 
 ### Market positioning
 
@@ -258,7 +267,8 @@ The first implementation should remain a sequence of vertical slices.
 
 1. US: SEC EDGAR plus a permitted price source.
 2. South Korea: OpenDART, then KRX after key approval.
-3. Vietnam: official-document adapter first; complete a source and licensing spike before selecting an authoritative market adapter.
+3. Vietnam: official-document adapter first; no authoritative price adapter is approved for this
+   release, and a later selection requires recorded exchange/licensed access and terms.
 
 ## Known Gaps Requiring Paid or Partner Data
 

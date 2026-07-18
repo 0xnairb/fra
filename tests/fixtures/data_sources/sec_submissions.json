@@ -1,0 +1,18 @@
+{
+  "cik": "0001657853",
+  "name": "Fixture Fertilizer Corp",
+  "tickers": ["FERT"],
+  "exchanges": ["NYSE"],
+  "filings": {
+    "recent": {
+      "accessionNumber": ["0001657853-22-000010"],
+      "filingDate": ["2022-02-18"],
+      "reportDate": ["2021-12-31"],
+      "acceptanceDateTime": ["20220218163000"],
+      "form": ["10-K"],
+      "primaryDocument": ["fert-20211231.htm"],
+      "isXBRL": [1]
+    },
+    "files": []
+  }
+}

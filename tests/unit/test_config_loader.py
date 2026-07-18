@@ -24,7 +24,10 @@ def test_example_configuration_is_valid() -> None:
     loaded = load_config(example)
 
     assert loaded.source == example.resolve()
-    assert loaded.config.data_sources.coingecko.enabled is True
+    assert loaded.config.agent.options.profile is None
+    assert loaded.config.data_sources.coingecko.enabled is False
+    assert loaded.config.data_sources.yfinance.enabled is True
+    assert loaded.config.data_sources.world_bank_indicators.enabled is True
     assert loaded.config.storage.provider == "markdown"
 
 

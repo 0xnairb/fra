@@ -8,11 +8,10 @@ timeout_seconds = 900
 
 [agent.options]
 binary = "codex"
-profile = "fra"
 sandbox = "read-only"
 
 [data_sources.coingecko]
-enabled = true
+enabled = false
 roles = ["primary", "cross_check"]
 
 [data_sources.coingecko.options]
@@ -20,20 +19,84 @@ base_url = "https://api.coingecko.com/api/v3"
 api_key_env = "COINGECKO_DEMO_API_KEY"
 
 [data_sources.yfinance]
+enabled = true
+roles = ["fallback"]
+allowed_usage_profiles = ["local_personal_research"]
+
+# Python entry-point plugins are never auto-enabled. The key must match an installed
+# `fra.data_sources` entry-point name; disabled entries are not imported.
+[data_sources.plugins.example_market]
 enabled = false
 roles = ["fallback"]
 allowed_usage_profiles = ["local_personal_research"]
 
 [data_sources.eia]
-enabled = true
+enabled = false
 roles = ["primary"]
 
 [data_sources.eia.options]
+base_url = "https://api.eia.gov/v2/petroleum/stoc/wstk/data"
 api_key_env = "EIA_API_KEY"
+
+[data_sources.world_bank_pink_sheet]
+enabled = false
+roles = ["primary"]
+allowed_usage_profiles = ["local_personal_research", "internal_research", "commercial"]
+
+[data_sources.world_bank_pink_sheet.options]
+workbook_url = "https://thedocs.worldbank.org/en/doc/5d903e848db1d1b83e0ec8f744e55570-0350012021/related/CMO-Historical-Data-Monthly.xlsx"
+
+[data_sources.fred_alfred]
+enabled = false
+roles = ["primary"]
+allowed_usage_profiles = ["local_personal_research", "internal_research", "commercial"]
+
+[data_sources.fred_alfred.options]
+base_url = "https://api.stlouisfed.org/fred/series/observations"
+api_key_env = "FRED_API_KEY"
+
+[data_sources.sec_edgar]
+enabled = false
+roles = ["primary"]
+allowed_usage_profiles = ["local_personal_research", "internal_research", "commercial"]
+
+[data_sources.sec_edgar.options]
+base_url = "https://data.sec.gov"
+user_agent = "Example Research contact@example.com"
+
+[data_sources.opendart]
+enabled = false
+roles = ["primary"]
+allowed_usage_profiles = ["local_personal_research", "internal_research", "commercial"]
+
+[data_sources.opendart.options]
+base_url = "https://engopendart.fss.or.kr/engapi"
+api_key_env = "OPENDART_API_KEY"
 
 [data_sources.world_bank_indicators]
 enabled = true
 roles = ["primary"]
+
+[data_sources.manual_documents]
+enabled = false
+roles = ["primary"]
+terms_url = "https://publisher.example/terms"
+terms_reviewed_at = 2026-07-18
+
+[[data_sources.manual_documents.documents]]
+provider_record_id = "release-001"
+title = "Configured official release"
+url = "https://publisher.example/releases/001"
+published_at = 2026-07-18T08:00:00Z
+
+[data_sources.rss_atom]
+enabled = false
+roles = ["primary"]
+terms_url = "https://publisher.example/terms"
+terms_reviewed_at = 2026-07-18
+
+[data_sources.rss_atom.options]
+feed_url = "https://publisher.example/feed.xml"
 
 [source_policy]
 material_claim_minimum_authority = "official_or_corroborated"

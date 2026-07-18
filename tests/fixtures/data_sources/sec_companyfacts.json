@@ -1,0 +1,26 @@
+{
+  "cik": 1657853,
+  "entityName": "Fixture Fertilizer Corp",
+  "facts": {
+    "us-gaap": {
+      "CostOfRevenue": {
+        "label": "Cost of revenue",
+        "description": "Fixture cost of revenue",
+        "units": {
+          "USD": [
+            {
+              "start": "2021-01-01",
+              "end": "2021-12-31",
+              "val": 780000000,
+              "accn": "0001657853-22-000010",
+              "fy": 2021,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2022-02-18"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

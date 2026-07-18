@@ -1,0 +1,4 @@
+Synthesize the supported chain and strongest counter-scenario without inventing deterministic values.
+Keep official facts structurally distinct from discovery signals.
+Question: {question}
+Durable results: {durable_results}

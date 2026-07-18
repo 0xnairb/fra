@@ -29,14 +29,19 @@ class DocumentRef:
     title: str
     source: str
     published_at: datetime | None = None
+    updated_at: datetime | None = None
+    corrects_provider_record_id: str | None = None
+    withdrawn: bool = False
 
     def __post_init__(self) -> None:
         if not self.provider_record_id.strip() or not self.title.strip() or not self.source.strip():
             raise DomainValidationError("document references require ID, title, and source")
-        if self.published_at is not None:
-            object.__setattr__(
-                self, "published_at", as_utc(self.published_at, field="published_at")
-            )
+        for field in ("published_at", "updated_at"):
+            value = getattr(self, field)
+            if value is not None:
+                object.__setattr__(self, field, as_utc(value, field=field))
+        if self.updated_at and self.published_at and self.updated_at < self.published_at:
+            raise DomainValidationError("document update cannot precede publication")
 
 
 @dataclass(frozen=True, slots=True)
@@ -46,14 +51,19 @@ class Document:
     source: str
     content: str
     published_at: datetime | None = None
+    updated_at: datetime | None = None
+    corrects_provider_record_id: str | None = None
+    withdrawn: bool = False
 
     def __post_init__(self) -> None:
         if not self.content.strip():
             raise DomainValidationError("document content must not be empty")
-        if self.published_at is not None:
-            object.__setattr__(
-                self, "published_at", as_utc(self.published_at, field="published_at")
-            )
+        for field in ("published_at", "updated_at"):
+            value = getattr(self, field)
+            if value is not None:
+                object.__setattr__(self, field, as_utc(value, field=field))
+        if self.updated_at and self.published_at and self.updated_at < self.published_at:
+            raise DomainValidationError("document update cannot precede publication")
 
 
 @dataclass(frozen=True, slots=True)

@@ -37,8 +37,18 @@ class MandateId(DomainId):
 
 
 @dataclass(frozen=True, slots=True)
+class PlanId(DomainId):
+    """Research plan identity."""
+
+
+@dataclass(frozen=True, slots=True)
 class EvidenceId(DomainId):
     """Normalized evidence identity."""
+
+
+@dataclass(frozen=True, slots=True)
+class CalculationId(DomainId):
+    """Deterministic calculation identity."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -47,8 +57,48 @@ class ClaimId(DomainId):
 
 
 @dataclass(frozen=True, slots=True)
+class ScenarioId(DomainId):
+    """Research scenario identity."""
+
+
+@dataclass(frozen=True, slots=True)
+class VerificationId(DomainId):
+    """Research verification identity."""
+
+
+@dataclass(frozen=True, slots=True)
 class SignalId(DomainId):
     """Signal aggregate identity."""
+
+
+@dataclass(frozen=True, slots=True)
+class ForecastId(DomainId):
+    """Forecast aggregate identity."""
+
+
+@dataclass(frozen=True, slots=True)
+class OutcomeId(DomainId):
+    """Forecast outcome identity."""
+
+
+@dataclass(frozen=True, slots=True)
+class ForecastScoreId(DomainId):
+    """Deterministic forecast score identity."""
+
+
+@dataclass(frozen=True, slots=True)
+class ExposureGraphId(DomainId):
+    """Exposure graph aggregate identity."""
+
+
+@dataclass(frozen=True, slots=True)
+class ProfileId(DomainId):
+    """Investor suitability profile identity."""
+
+
+@dataclass(frozen=True, slots=True)
+class PortfolioId(DomainId):
+    """Observed or proposed portfolio identity."""
 
 
 @dataclass(frozen=True, slots=True)

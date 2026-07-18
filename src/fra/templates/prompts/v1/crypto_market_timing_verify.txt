@@ -1,0 +1,6 @@
+Verify the durable BTC and ETH market-regime analysis for this question:
+
+{question}
+
+Reject unsupported numerical claims, stale evidence, missing currency or horizon, certainty language, and any claim without a persisted evidence or calculation ID. Return whether the analysis passes and a complete issue list.
+Durable prior results: {durable_results}

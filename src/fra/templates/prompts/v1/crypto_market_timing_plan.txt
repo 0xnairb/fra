@@ -1,0 +1,6 @@
+Plan a bounded BTC and ETH market-regime assessment for this question:
+
+{question}
+
+Use the declared horizon and risk tolerance. Request only price, market-cap, volume, and deterministic return, volatility, and drawdown calculations. Do not recommend a transaction. Return an objective, ordered tasks, and data requirements.
+Durable prior results: {durable_results}

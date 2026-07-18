@@ -1,0 +1,3 @@
+Explain tradeoffs around the deterministic weights without calculating replacement weights.
+Question: {question}
+Durable results: {durable_results}

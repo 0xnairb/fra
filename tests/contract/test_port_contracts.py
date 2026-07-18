@@ -3,6 +3,7 @@ from typing import get_type_hints
 from fra.domain.sources import DataEnvelope
 from fra.ports.agent_backend import AgentBackend
 from fra.ports.documents import DocumentProvider
+from fra.ports.economic_series import EconomicSeriesProvider
 from fra.ports.market_data import MarketDataProvider
 
 
@@ -14,6 +15,7 @@ def test_provider_ports_return_only_fra_owned_types() -> None:
         MarketDataProvider.history,
         DocumentProvider.search,
         DocumentProvider.fetch,
+        EconomicSeriesProvider.observations,
     )
 
     for method in methods:

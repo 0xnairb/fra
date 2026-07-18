@@ -1,0 +1,7 @@
+Challenge the durable analysis for this research question:
+
+{question}
+
+Return whether it passes and a complete issue list. Set passed=false for a blocking issue. Low- or
+medium-severity advisories may remain in the issue list with passed=true; high-severity issues block.
+Durable prior results: {durable_results}

@@ -1,3 +1,5 @@
+import os
+import sys
 from pathlib import Path
 
 import pytest
@@ -7,6 +9,7 @@ from fra.bootstrap import build_cli
 from fra.cli.exit_codes import ExitCode
 
 runner = CliRunner()
+FIXTURE = Path(__file__).parents[2] / "fixtures" / "agent_backends" / "fake_codex.py"
 
 
 def test_help_lists_foundation_commands() -> None:
@@ -21,13 +24,20 @@ def test_doctor_passes_without_configuration_or_external_calls(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.chdir(tmp_path)
+    if os.name == "nt":  # pragma: no cover - exercised by the Windows CI leg
+        binary = tmp_path / "codex.cmd"
+        binary.write_text(f'@"{sys.executable}" "{FIXTURE}" %*\n')
+    else:
+        binary = tmp_path / "codex"
+        binary.symlink_to(FIXTURE)
+    monkeypatch.setenv("PATH", f"{tmp_path}{os.pathsep}{os.environ['PATH']}")
 
     result = runner.invoke(build_cli(), ["doctor"])
 
     assert result.exit_code == ExitCode.SUCCESS
     assert "Python runtime" in result.output
     assert "Configuration" in result.output
-    assert "2/2 checks passed" in result.output
+    assert "10/10 checks passed" in result.output
 
 
 def test_doctor_rejects_inline_secret_without_echoing_it(tmp_path: Path) -> None:

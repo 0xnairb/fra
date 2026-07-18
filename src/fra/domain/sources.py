@@ -6,18 +6,28 @@ from enum import StrEnum
 
 from fra.domain.errors import DomainValidationError, LookAheadEvidenceError
 from fra.domain.ids import InstrumentId
+from fra.domain.shared import HealthStatus
 from fra.domain.time import as_utc
 
 
 class SourceKind(StrEnum):
     MARKET_DATA = "market_data"
     DOCUMENT = "document"
+    ECONOMIC_SERIES = "economic_series"
 
 
 class DataKind(StrEnum):
     MARKET_QUOTE = "market_quote"
     MARKET_SERIES = "market_series"
     DOCUMENT = "document"
+    ECONOMIC_SERIES = "economic_series"
+
+
+class SourceRole(StrEnum):
+    PRIMARY = "primary"
+    FALLBACK = "fallback"
+    CROSS_CHECK = "cross_check"
+    DISCOVERY = "discovery"
 
 
 class AuthorityClass(StrEnum):
@@ -71,6 +81,8 @@ class SourceDescriptor:
     quota_description: str | None = None
     normal_update_cadence: str | None = None
     required_attribution: str | None = None
+    fields: frozenset[str] = frozenset()
+    maximum_expected_age: timedelta | None = None
     experimental: bool = False
     discovery_only: bool = False
 
@@ -88,6 +100,8 @@ class SourceDescriptor:
             raise DomainValidationError("source descriptor requires at least one source kind")
         if not self.allowed_usage_profiles:
             raise DomainValidationError("unknown source usage rights fail closed")
+        if self.maximum_expected_age is not None and self.maximum_expected_age <= timedelta(0):
+            raise DomainValidationError("maximum expected source age must be positive")
 
 
 @dataclass(frozen=True, slots=True)
@@ -181,3 +195,80 @@ class DataEnvelope[ValueT]:
             raise LookAheadEvidenceError(
                 "available_at cannot occur after the historical evidence cutoff"
             )
+
+
+@dataclass(frozen=True, slots=True)
+class RoutingCandidate:
+    provider_id: str
+    selected_role: SourceRole | None = None
+    exclusions: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        if not self.provider_id.strip():
+            raise DomainValidationError("routing candidate provider ID must not be empty")
+        if self.selected_role is not None and self.exclusions:
+            raise DomainValidationError("a selected routing candidate cannot also be excluded")
+
+
+@dataclass(frozen=True, slots=True)
+class RoutingDecision:
+    requirement: EvidenceRequirement
+    policy_version: str
+    candidates: tuple[RoutingCandidate, ...]
+    warnings: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        if not self.policy_version.strip():
+            raise DomainValidationError("routing policy version must not be empty")
+
+    @property
+    def selected(self) -> tuple[RoutingCandidate, ...]:
+        return tuple(item for item in self.candidates if item.selected_role is not None)
+
+
+@dataclass(frozen=True, slots=True)
+class SourceStatusRecord:
+    provider_id: str
+    checked_at: datetime
+    health: HealthStatus
+    roles: tuple[SourceRole, ...] = ()
+    capability_warnings: tuple[str, ...] = ()
+    quota_warning: str | None = None
+
+    def __post_init__(self) -> None:
+        if not self.provider_id.strip():
+            raise DomainValidationError("source status provider ID must not be empty")
+        object.__setattr__(self, "checked_at", as_utc(self.checked_at, field="checked_at"))
+        if self.checked_at != self.health.checked_at:
+            raise DomainValidationError("source status and health check times must match")
+
+
+@dataclass(frozen=True, slots=True)
+class SourceCacheEntry:
+    provider_id: str
+    request_fingerprint: str
+    retrieved_at: datetime
+    available_at: datetime
+    expires_at: datetime
+    usage_profile: UsageProfile
+    raw_retention: RawRetentionPolicy
+    content_hash: str
+    payload: object
+    warnings: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        if not self.provider_id.strip():
+            raise DomainValidationError("cache provider ID must not be empty")
+        for field in ("request_fingerprint", "content_hash"):
+            value = getattr(self, field)
+            digest = value.removeprefix("sha256:")
+            if (
+                not value.startswith("sha256:")
+                or len(digest) != 64
+                or any(character not in "0123456789abcdef" for character in digest)
+            ):
+                raise DomainValidationError(f"cache {field} must use sha256")
+        for field in ("retrieved_at", "available_at", "expires_at"):
+            object.__setattr__(self, field, as_utc(getattr(self, field), field=field))
+        if self.expires_at <= self.retrieved_at:
+            raise DomainValidationError("cache expiry must follow retrieval time")

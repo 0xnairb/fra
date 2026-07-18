@@ -15,6 +15,12 @@ class ArtifactKind(StrEnum):
     CLAIM = "claim"
     SIGNAL = "signal"
     REPORT = "report"
+    SOURCE_STATUS = "source_status"
+    SOURCE_CACHE = "source_cache"
+    CALCULATION = "calculation"
+    FORECAST = "forecast"
+    OUTCOME = "outcome"
+    EXPOSURE_GRAPH = "exposure_graph"
 
 
 @dataclass(frozen=True, slots=True)
@@ -53,6 +59,7 @@ class FailureKind(StrEnum):
     POINT_IN_TIME_UNAVAILABLE = "point_in_time_unavailable"
     TERMS_REVIEW_EXPIRED = "terms_review_expired"
     STRUCTURED_OUTPUT_INVALID = "structured_output_invalid"
+    CANCELLED = "cancelled"
     NEEDS_USER_INPUT = "needs_user_input"
     INCOMPLETE = "incomplete"
 

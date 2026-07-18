@@ -4,6 +4,7 @@ from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass
 from datetime import datetime
 from enum import StrEnum
+from pathlib import Path
 from typing import Protocol
 
 from fra.domain.errors import DomainValidationError
@@ -58,6 +59,24 @@ AgentEventHandler = Callable[[AgentEvent], Awaitable[None] | None]
 
 
 @dataclass(frozen=True, slots=True)
+class AgentUsage:
+    input_tokens: int | None = None
+    cached_input_tokens: int | None = None
+    output_tokens: int | None = None
+    reasoning_output_tokens: int | None = None
+
+    def __post_init__(self) -> None:
+        values = (
+            self.input_tokens,
+            self.cached_input_tokens,
+            self.output_tokens,
+            self.reasoning_output_tokens,
+        )
+        if any(value is not None and value < 0 for value in values):
+            raise DomainValidationError("agent usage values must not be negative")
+
+
+@dataclass(frozen=True, slots=True)
 class AgentStageRequest:
     run_id: ResearchRunId
     stage_id: StageId
@@ -67,12 +86,16 @@ class AgentStageRequest:
     timeout_seconds: int
     output_schema: Mapping[str, JsonValue]
     provider_session_id: str | None = None
+    working_directory: Path = Path(".")
+    allowed_capabilities: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         if not self.instructions.strip():
             raise DomainValidationError("agent stage instructions must not be empty")
         if self.timeout_seconds <= 0:
             raise DomainValidationError("agent stage timeout must be positive")
+        if not self.working_directory.is_dir():
+            raise DomainValidationError("agent stage working directory must exist")
 
 
 @dataclass(frozen=True, slots=True)
@@ -86,6 +109,8 @@ class AgentStageResult:
     provider_session_id: str | None = None
     cli_version: str | None = None
     model: str | None = None
+    usage: AgentUsage | None = None
+    cost: float | None = None
     warnings: tuple[str, ...] = ()
     failure: Failure | None = None
 
@@ -96,6 +121,8 @@ class AgentStageResult:
             raise DomainValidationError("agent stage cannot end before it starts")
         if self.status is AgentResultStatus.COMPLETED and self.output is None:
             raise DomainValidationError("completed agent stage requires structured output")
+        if self.cost is not None and self.cost < 0:
+            raise DomainValidationError("agent stage cost must not be negative")
 
 
 class AgentBackend(Protocol):

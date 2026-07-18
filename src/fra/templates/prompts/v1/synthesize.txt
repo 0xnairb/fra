@@ -1,0 +1,6 @@
+Synthesize the verified durable results for this research question:
+
+{question}
+
+Return a title, concise summary, and explicit limitations.
+Durable prior results: {durable_results}

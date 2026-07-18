@@ -1,0 +1,28 @@
+{
+  "realtime_start": "2022-02-24",
+  "realtime_end": "2022-02-24",
+  "observation_start": "2022-02-01",
+  "observation_end": "2022-02-24",
+  "units": "lin",
+  "output_type": 1,
+  "file_type": "json",
+  "order_by": "observation_date",
+  "sort_order": "asc",
+  "count": 2,
+  "offset": 0,
+  "limit": 100000,
+  "observations": [
+    {
+      "realtime_start": "2022-02-24",
+      "realtime_end": "2022-02-24",
+      "date": "2022-02-22",
+      "value": "92.35"
+    },
+    {
+      "realtime_start": "2022-02-24",
+      "realtime_end": "2022-02-24",
+      "date": "2022-02-23",
+      "value": "92.14"
+    }
+  ]
+}

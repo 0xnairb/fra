@@ -106,6 +106,9 @@ fra-workspace/
 ├── outcomes/<outcome_id>.md
 ├── exposure-graphs/<graph_id>.md
 └── runs/<year>/<month>/<run_id>/
+    ├── run.md
+    ├── mandate.md
+    ├── plan.md
     ├── evidence/*.md
     ├── claims/*.md
     ├── calculations/*.md

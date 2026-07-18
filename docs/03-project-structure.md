@@ -1,310 +1,178 @@
 # Project Structure
 
-## Proposed Repository Layout
+## Canonical Repository Layout
+
+This document describes the implemented source layout. It is a boundary map, not a backlog of
+files to create. New packages and files are added only when an implemented behavior needs them;
+empty scaffolding from earlier design sketches is not part of the architecture.
 
 ```text
 fra/
 ├── pyproject.toml
 ├── README.md
-├── LICENSE
 ├── fra.example.toml
-│
 ├── docs/
 │   ├── README.md
-│   ├── 01-mvp-scope.md
-│   ├── 02-architecture.md
-│   ├── 03-project-structure.md
-│   ├── 04-components.md
-│   ├── 05-runtime-flows.md
-│   ├── 06-markdown-storage.md
-│   ├── 07-extensibility.md
-│   ├── 08-data-source-strategy.md
-│   ├── 09-cli-dashboard-and-output-contract.md
-│   └── 10-implementation-plan.md
-│
-├── src/
-│   └── fra/
-│       ├── __init__.py
-│       ├── __main__.py
-│       ├── bootstrap.py
-│       │
-│       ├── cli/
-│       │   ├── app.py
-│       │   ├── commands/
-│       │   │   ├── doctor.py
-│       │   │   ├── dashboard.py
-│       │   │   ├── research.py
-│       │   │   ├── resume.py
-│       │   │   ├── signals.py
-│       │   │   ├── forecasts.py
-│       │   │   ├── monitor.py
-│       │   │   ├── runs.py
-│       │   │   ├── profile.py
-│       │   │   └── portfolio.py
-│       │   └── presenters/
-│       │       ├── console.py
-│       │       ├── dashboard.py
-│       │       └── progress.py
-│       │
-│       ├── config/
-│       │   ├── models.py
-│       │   ├── loader.py
-│       │   └── validation.py
-│       │
-│       ├── domain/
-│       │   ├── enums.py
-│       │   ├── errors.py
-│       │   ├── research.py
-│       │   ├── evidence.py
-│       │   ├── signals.py
-│       │   ├── sources.py
-│       │   ├── events.py
-│       │   ├── instruments.py
-│       │   ├── market_data.py
-│       │   ├── scenarios.py
-│       │   ├── forecasts.py
-│       │   ├── outcomes.py
-│       │   ├── exposure_graph.py
-│       │   ├── profiles.py
-│       │   ├── portfolios.py
-│       │   └── validation.py
-│       │
-│       ├── application/
-│       │   ├── research_orchestrator.py
-│       │   ├── evidence_service.py
-│       │   ├── signal_service.py
-│       │   ├── dashboard_service.py
-│       │   ├── source_registry.py
-│       │   ├── source_router.py
-│       │   ├── forecast_service.py
-│       │   ├── monitoring_service.py
-│       │   ├── scoring_service.py
-│       │   ├── verification_service.py
-│       │   ├── report_service.py
-│       │   ├── doctor_service.py
-│       │   └── use_cases/
-│       │       ├── run_research.py
-│       │       ├── show_dashboard.py
-│       │       ├── list_signals.py
-│       │       ├── resume_research.py
-│       │       ├── evaluate_crypto.py
-│       │       ├── propose_allocation.py
-│       │       ├── analyze_crisis.py
-│       │       ├── issue_forecast.py
-│       │       ├── monitor_forecast.py
-│       │       └── resolve_forecast.py
-│       │
-│       ├── ports/
-│       │   ├── agent_backend.py
-│       │   ├── market_data.py
-│       │   ├── economic_series.py
-│       │   ├── documents.py
-│       │   ├── events.py
-│       │   ├── fundamentals.py
-│       │   ├── trade_flows.py
-│       │   ├── physical_flows.py
-│       │   ├── positioning.py
-│       │   ├── on_chain.py
-│       │   ├── repositories.py
-│       │   ├── cache.py
-│       │   ├── clock.py
-│       │   └── ids.py
-│       │
-│       ├── adapters/
-│       │   ├── agents/
-│       │   │   ├── subprocess_base.py
-│       │   │   ├── codex_cli.py
-│       │   │   ├── claude_cli.py
-│       │   │   ├── antigravity_cli.py
-│       │   │   └── event_normalizers.py
-│       │   ├── data_sources/
-│       │   │   ├── common/
-│       │   │   │   ├── http.py
-│       │   │   │   ├── files.py
-│       │   │   │   ├── manifests.py
-│       │   │   │   └── rate_limits.py
-│       │   │   ├── market/
-│       │   │   │   ├── coingecko.py
-│       │   │   │   ├── yfinance.py
-│       │   │   │   └── symbol_mapping.py
-│       │   │   ├── economic/
-│       │   │   │   ├── fred.py
-│       │   │   │   └── world_bank_indicators.py
-│       │   │   ├── physical/
-│       │   │   │   ├── eia.py
-│       │   │   │   ├── world_bank_pink_sheet.py
-│       │   │   │   ├── jodi.py
-│       │   │   │   └── portwatch.py
-│       │   │   ├── documents/
-│       │   │   │   ├── manual_url.py
-│       │   │   │   ├── rss_atom.py
-│       │   │   │   ├── sec_edgar.py
-│       │   │   │   ├── open_dart.py
-│       │   │   │   └── gdelt.py
-│       │   │   ├── trade/
-│       │   │   │   ├── un_comtrade.py
-│       │   │   │   └── faostat.py
-│       │   │   ├── positioning/
-│       │   │   │   └── cftc.py
-│       │   │   └── crypto/
-│       │   │       └── coin_metrics.py
-│       │   ├── storage/
-│       │   │   ├── markdown_research.py
-│       │   │   ├── markdown_signals.py
-│       │   │   ├── markdown_source_status.py
-│       │   │   ├── markdown_forecasts.py
-│       │   │   ├── markdown_outcomes.py
-│       │   │   ├── markdown_exposure_graph.py
-│       │   │   ├── markdown_profiles.py
-│       │   │   ├── markdown_portfolios.py
-│       │   │   ├── markdown_codec.py
-│       │   │   └── atomic_files.py
-│       │   └── system/
-│       │       ├── system_clock.py
-│       │       └── uuid_generator.py
-│       │
-│       ├── factories/
-│       │   ├── agent_factory.py
-│       │   ├── source_adapter_factory.py
-│       │   ├── source_plugin_registry.py
-│       │   └── repository_factory.py
-│       │
-│       ├── research/
-│       │   ├── registry.py
-│       │   ├── crypto/
-│       │   │   ├── workflow.py
-│       │   │   ├── requirements.py
-│       │   │   └── policies.py
-│       │   ├── equities/
-│       │   │   ├── workflow.py
-│       │   │   ├── requirements.py
-│       │   │   └── policies.py
-│       │   └── commodities/
-│       │       ├── workflow.py
-│       │       ├── requirements.py
-│       │       └── policies.py
-│       │
-│       ├── markets/
-│       │   ├── registry.py
-│       │   ├── us.py
-│       │   ├── vn.py
-│       │   └── kr.py
-│       │
-│       ├── analytics/
-│       │   ├── returns.py
-│       │   ├── volatility.py
-│       │   ├── drawdown.py
-│       │   ├── allocation.py
-│       │   ├── exposure.py
-│       │   └── stress.py
-│       │
-│       ├── schemas/
-│       │   ├── research_plan.schema.json
-│       │   ├── analysis.schema.json
-│       │   ├── signal.schema.json
-│       │   ├── forecast.schema.json
-│       │   ├── outcome.schema.json
-│       │   ├── verification.schema.json
-│       │   └── report.schema.json
-│       │
-│       └── templates/
-│           ├── prompts/
-│           │   ├── plan.md
-│           │   ├── analyze.md
-│           │   ├── forecast.md
-│           │   ├── challenge.md
-│           │   ├── verify.md
-│           │   └── synthesize.md
-│           └── storage/
-│               ├── run.md
-│               ├── evidence.md
-│               ├── claim.md
-│               ├── signal.md
-│               ├── forecast.md
-│               ├── outcome.md
-│               └── report.md
-│
+│   ├── 01-mvp-scope.md ... 10-implementation-plan.md
+│   └── 11-operations-and-recovery.md
+├── src/fra/
+│   ├── __init__.py
+│   ├── __main__.py
+│   ├── bootstrap.py
+│   ├── cli/
+│   │   ├── app.py
+│   │   └── exit_codes.py
+│   ├── config/
+│   │   ├── loader.py
+│   │   └── models.py
+│   ├── domain/
+│   │   ├── research.py
+│   │   ├── sources.py
+│   │   ├── signals.py
+│   │   ├── forecasts.py
+│   │   ├── portfolio.py
+│   │   ├── analytics.py
+│   │   ├── crisis.py
+│   │   ├── documents.py
+│   │   ├── economic.py
+│   │   ├── market_data.py
+│   │   └── supporting values, IDs, errors, time, regions, and regulatory models
+│   ├── application/
+│   │   ├── research_orchestrator.py
+│   │   ├── research_workflows.py
+│   │   ├── verification_service.py
+│   │   ├── source_platform.py
+│   │   ├── source_service.py
+│   │   ├── source_cache.py
+│   │   ├── forecast_service.py
+│   │   ├── dashboard_service.py
+│   │   ├── workspace_service.py
+│   │   ├── crypto_market_timing.py
+│   │   ├── crisis_research.py
+│   │   ├── allocation_research.py
+│   │   ├── agent_schemas.py
+│   │   ├── prompt_templates.py
+│   │   └── container.py
+│   ├── ports/
+│   │   ├── agent_backend.py
+│   │   ├── market_data.py
+│   │   ├── economic_series.py
+│   │   ├── documents.py
+│   │   ├── repositories.py
+│   │   ├── workspace.py
+│   │   ├── workspace_maintenance.py
+│   │   ├── clock.py
+│   │   └── ids.py
+│   ├── adapters/
+│   │   ├── agents/
+│   │   ├── data_sources/{common,documents,economic,market}/
+│   │   ├── storage/
+│   │   ├── system/
+│   │   ├── in_memory/
+│   │   └── fakes/
+│   ├── factories/
+│   │   ├── agents.py
+│   │   ├── sources.py
+│   │   ├── source_plugins.py
+│   │   └── in_memory.py
+│   ├── security/
+│   └── templates/prompts/v1/
 └── tests/
     ├── unit/
-    │   ├── domain/
-    │   ├── application/
-    │   ├── analytics/
-    │   └── factories/
     ├── contract/
-    │   ├── agent_backends/
-    │   ├── data_sources/
-    │   └── repositories/
     ├── integration/
-    │   ├── cli/
-    │   ├── markdown_storage/
-    │   └── provider_fixtures/
     └── fixtures/
-        ├── agent_events/
-        ├── data_sources/
-        └── workspaces/
 ```
+
+The tree intentionally keeps cohesive domain and application slices in single modules while they
+remain reviewable. For example, forecast lifecycle use cases live together in
+`application/forecast_service.py`, and deterministic calculations live in `domain/analytics.py`.
+They may be split when size or independent change cadence makes that useful, not merely to mirror a
+hypothetical future tree.
 
 ## Source Layout Rules
 
 ### `cli/`
 
-Contains presentation code only. Commands call application use cases and convert results into terminal output. The dashboard presenter renders application snapshots and never performs research or external calls. Provider-specific flags must not appear here.
+Contains presentation code only. Commands parse input, call application services, render output,
+and map typed failures to process exit codes. Commands do not construct adapters, open Markdown
+artifacts directly, or call providers.
 
 ### `config/`
 
-Owns FRA configuration models and merging rules. It validates provider names and options but does not instantiate providers.
+Owns typed configuration and loading. It validates provider names and options but does not construct
+providers.
 
 ### `domain/`
 
-Contains pure finance-research models and policies. It must be importable without installing an agent CLI or any data-source client dependency.
+Contains pure finance-research values, aggregates, and deterministic policies. It has no subprocess,
+HTTP, filesystem, YAML, Markdown, CLI, or third-party validation dependency.
 
 ### `application/`
 
-Coordinates workflows and transactions over repository ports. It contains no vendor imports and no filesystem path construction.
+Coordinates use cases over domain objects and ports. `SourceRegistry` and `SourceRouter` live here:
+the registry indexes constructed adapters, while the router selects and executes only
+policy-compatible sources. Workflow modules declare provider-neutral evidence requirements and do
+not select adapters by vendor ID.
+
+`agent_schemas.py` is the authoritative Pydantic boundary for transient agent JSON. Schemas are
+generated from those models and versioned in run metadata; duplicate checked-in schema files are not
+maintained.
 
 ### `ports/`
 
-Defines the interfaces implemented by adapters. Ports belong to FRA, not to a vendor.
+Defines FRA-owned protocols for agents, typed evidence sources, repositories, workspaces, clocks,
+and IDs. Ports depend only on the domain and the standard library.
 
 ### `adapters/`
 
-Contains all external integration logic. Each adapter translates vendor concepts into FRA port contracts and typed errors. Data-source adapters are grouped by evidence plane, share transport utilities, and publish a source manifest; shared HTTP code must not become a generic untyped provider API.
+Contains external integration and persistence logic. Adapters translate vendor or filesystem
+concepts into port contracts and typed errors. Data-source adapters are grouped by evidence plane and
+share bounded transport and manifest utilities.
 
 ### `factories/`
 
-Maps configuration to adapters. Factories are small and deterministic. The source factory loads built-ins and future `fra.data_sources` entry-point plugins into the registry; it does not choose evidence for a workflow.
-
-### `research/`
-
-Contains asset-class research policies and data requirements. These modules answer questions such as “which evidence is normally required for a crypto regime assessment?” They do not perform HTTP calls.
-
-### `markets/`
-
-Contains country or venue rules shared across asset workflows:
-
-- identifiers and ticker suffixes;
-- currencies and timezones;
-- market calendars and session conventions;
-- disclosure or source conventions;
-- benchmark mappings.
-
-US, Vietnam, and South Korea remain independent from the equity workflow so the same market metadata can later support ETFs, FX, or local commodities.
-
-### `analytics/`
-
-Contains deterministic numerical functions. An agent may request a calculation, but the calculation implementation lives here.
-
-### `schemas/`
-
-Contains JSON Schemas used for transient agent output. Valid JSON is converted into domain models and then persisted as Markdown.
+Maps configuration to constructed adapters. Factories may depend on adapters, ports, domain values,
+and configuration, but not on application or CLI modules. The source factory accepts a registrar
+protocol supplied by the composition root, so plugin discovery and adapter construction do not
+reverse the dependency direction.
 
 ### `templates/`
 
-Contains versioned prompt and Markdown templates. Prompt versions are recorded in every research run.
+Contains versioned prompt resources. Prompt versions are recorded in research-run metadata.
+Markdown rendering belongs to storage adapters because the rendered format is a repository concern.
+
+## Dependency Direction
+
+Allowed project dependencies are:
+
+```text
+cli --------> application --------> ports --------> domain
+ |                 |                  |
+ +---------------> domain <-----------+
+
+adapters ---------------------------> ports + domain
+factories --------------------------> adapters + ports + domain + config
+bootstrap --------------------------> cli + application + factories + adapters
+```
+
+`bootstrap.py` is the only composition root. It may know concrete implementations; inner layers may
+not import it. The contract suite enforces these rules across every source file.
+
+Forbidden examples include:
+
+- domain importing Pydantic, Typer, HTTPX, a provider, or a repository adapter;
+- application importing CLI, factory, or adapter modules;
+- adapters importing application workflows;
+- factories importing `SourceRegistry` or another application service;
+- CLI importing a concrete adapter or factory;
+- a workflow selecting `eia`, `coingecko`, or another vendor by name;
+- a plugin bypassing routing, usage-policy, or point-in-time checks.
 
 ## User Workspace Layout
 
-Application source and user research data are separate. The default user workspace is `./fra-workspace`, configurable in `fra.toml`.
+Application source and user research data remain separate. The configured workspace uses this stable
+top-level layout:
 
 ```text
 fra-workspace/
@@ -318,39 +186,8 @@ fra-workspace/
 ├── exposure-graphs/
 ├── outcomes/
 ├── cache/
-└── logs/
+├── logs/
+└── .locks/
 ```
 
-The detailed layout and file contracts are defined in [Markdown storage](06-markdown-storage.md).
-
-## Naming Rules
-
-- Use `equities`, not `stock`, for the domain package.
-- Use plural package names for collections: `agents`, `adapters`, `portfolios`.
-- Adapter class names include their concrete technology: `CodexCliAgentAdapter`.
-- Port names describe capabilities: `AgentBackend`, not `CodexService`.
-- Factory names match the port they create.
-- Domain IDs are provider-independent; provider identifiers are stored as aliases.
-
-## Import Rules
-
-Allowed dependency direction:
-
-```text
-cli -> application -> domain
-                \-> ports -> domain
-adapters -> ports + domain
-factories -> adapters + ports + config
-bootstrap -> cli + application + factories
-```
-
-Forbidden examples:
-
-- `domain` importing `yfinance`;
-- `application` running `codex exec`;
-- `cli` opening Markdown files directly;
-- `MarkdownResearchRepository` importing a use case;
-- `CoinGeckoMarketDataAdapter` returning raw provider JSON;
-- a workflow selecting `eia` or `gdelt` by vendor name instead of declaring an evidence requirement;
-- a data-source plugin bypassing usage-policy or point-in-time validation;
-- a domain workflow reading environment variables.
+The detailed durable artifact contract is defined in [Markdown storage](06-markdown-storage.md).

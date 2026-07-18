@@ -8,11 +8,15 @@ permissions:
   contents: read
 
 jobs:
-  wp0:
-    runs-on: ubuntu-latest
+  release-gates:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
 
       - name: Install uv and Python
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
@@ -27,7 +31,6 @@ jobs:
         run: |
           uv run --locked fra --version
           uv run --locked fra --help
-          uv run --locked fra doctor
 
       - name: Tests
         run: uv run --locked pytest

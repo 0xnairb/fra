@@ -1,0 +1,4 @@
+Plan the oil-and-fertilizer crisis question using only persisted, cutoff-compatible evidence.
+Separate official facts from discovery signals and include a skeptic stage.
+Question: {question}
+Durable results: {durable_results}

@@ -29,12 +29,12 @@ All three initial research mandates use the same controlled workflow.
 
 ### Step 4: Collect evidence
 
-1. The orchestrator reads each structured `DataRequirement` in the plan.
-2. `SourceRouter` filters registered providers by capability, usage rights, authority, scope, point-in-time support, freshness, quota, and health.
+1. The selected research workflow validates and converts its typed plan requirements into FRA-owned provider requests.
+2. `SourceRouter` filters registered adapters by capability, usage rights, authority, scope, point-in-time support, freshness, quota, and health.
 3. The routing decision records selected, rejected, fallback, cross-check, and discovery sources.
-4. Typed provider adapters fetch and normalize market, economic, filing, event, trade, physical-flow, positioning, or on-chain data.
-5. `EvidenceService` creates evidence envelopes containing provenance, distinct time semantics, policy, and freshness metadata.
-6. Evidence and the routing decision are saved before analysis.
+4. The router executes only selected adapters. A fallback runs only when no selected primary succeeds.
+5. Adapters return normalized envelopes containing provenance, distinct time semantics, policy, and freshness metadata; the workflow converts them into bounded evidence and deterministic calculations.
+6. The orchestrator saves evidence and calculations before analysis. The collect checkpoint preserves the routing decision used by the workflow.
 
 The agent does not invent provider calls or directly persist provider payloads.
 
@@ -42,16 +42,19 @@ The agent does not invent provider calls or directly persist provider payloads.
 
 1. The application renders a bounded evidence bundle.
 2. The agent backend analyzes only the mandate, assumptions, and supplied evidence.
-3. The result is validated into claims, scenarios, calculations requested, and open questions.
-4. Deterministic calculations are executed by FRA calculation services.
-5. Calculated results become evidence items and may support claims.
+3. The result is validated into typed claims, evidence-backed scenarios, and open questions.
+4. Claims and scenarios are persisted as independently addressable Markdown before verification.
+5. Claims may cite the deterministic calculations persisted during collection.
 
 ### Step 6: Verify
 
 1. `VerificationService` checks claim citations, freshness, numerical consistency, and contradictory evidence.
 2. An agent verification stage challenges causal reasoning and missing risks.
-3. Failed verification returns a structured research gap.
-4. The orchestrator either collects more evidence, asks the user, or marks the report incomplete.
+3. Deterministic failures, an explicit agent rejection, and high-severity agent issues block the run.
+   Low- and medium-severity advisories remain in the verification artifact without overriding an
+   otherwise passing result.
+4. Failed verification returns a structured research gap.
+5. The orchestrator either collects more evidence, asks the user, or marks the report incomplete.
 
 ### Step 7: Synthesize
 

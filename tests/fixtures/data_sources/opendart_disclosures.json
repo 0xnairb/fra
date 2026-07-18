@@ -1,0 +1,32 @@
+{
+  "status": "000",
+  "message": "Normal",
+  "page_no": 1,
+  "page_count": 100,
+  "total_count": 2,
+  "total_page": 1,
+  "list": [
+    {
+      "corp_code": "00126380",
+      "corp_name": "Samsung Electronics Co., Ltd.",
+      "stock_code": "005930",
+      "corp_cls": "Y",
+      "report_nm": "Annual Report",
+      "rcept_no": "20260318001234",
+      "flr_nm": "Samsung Electronics Co., Ltd.",
+      "rcept_dt": "20260318",
+      "rm": ""
+    },
+    {
+      "corp_code": "00126380",
+      "corp_name": "Samsung Electronics Co., Ltd.",
+      "stock_code": "005930",
+      "corp_cls": "Y",
+      "report_nm": "Post-cutoff filing",
+      "rcept_no": "20260720001234",
+      "flr_nm": "Samsung Electronics Co., Ltd.",
+      "rcept_dt": "20260720",
+      "rm": ""
+    }
+  ]
+}

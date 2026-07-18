@@ -1,0 +1,6 @@
+Analyze only the durable inputs for this research question:
+
+{question}
+
+Return claims, scenarios, and open questions. Do not invent evidence.
+Durable prior results: {durable_results}

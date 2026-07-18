@@ -1,0 +1,3 @@
+Synthesize allocation tradeoffs, alternatives, risks, and rebalancing conditions.
+Question: {question}
+Durable results: {durable_results}

@@ -1,0 +1,24 @@
+{
+  "apiVersion": "2.1.0",
+  "response": {
+    "total": "2",
+    "dateFormat": "YYYY-MM-DD",
+    "frequency": "weekly",
+    "data": [
+      {
+        "period": "2022-02-18",
+        "series": "WCESTUS1",
+        "series-description": "Weekly U.S. Ending Stocks of Crude Oil",
+        "value": "411.6",
+        "units": "million barrels"
+      },
+      {
+        "period": "2022-02-25",
+        "series": "WCESTUS1",
+        "series-description": "Weekly U.S. Ending Stocks of Crude Oil",
+        "value": "413.4",
+        "units": "million barrels"
+      }
+    ]
+  }
+}

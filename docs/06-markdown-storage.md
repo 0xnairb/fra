@@ -478,7 +478,9 @@ The report is the main human-readable run result. Signals, evidence, claims, cal
 
 File: `profiles/<profile_id>.md`
 
-Stores goals, time horizon, liquidity needs, loss tolerance, restrictions, tax jurisdiction, and user-confirmed assumptions. Sensitive free-form personal information should be minimized.
+Stores a confirmed investment objective, time horizon, risk tolerance and capacity, liquidity needs,
+loss tolerance, restrictions, tax jurisdiction, and user-confirmed assumptions. Sensitive free-form
+personal information should be minimized.
 
 ### Portfolio
 

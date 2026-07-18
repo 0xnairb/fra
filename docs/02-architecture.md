@@ -294,7 +294,7 @@ cross-check independent corroborating or discrepancy source
 discovery   locates candidate evidence but cannot solely support a material claim
 ```
 
-Routing considers capability, subject, geography, history, frequency, freshness, point-in-time cutoff, authority, independence, cost, quota, and allowed use. It records the candidates considered and never silently averages disagreements.
+Routing considers capability, subject, geography, history, frequency, freshness, point-in-time cutoff, authority, independence, cost, quota, and allowed use. The router then executes only the selected adapters, attempts a fallback only after primary failure, records typed failures, and never silently averages disagreements.
 
 ## Storage Boundary
 
