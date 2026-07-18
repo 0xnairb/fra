@@ -13,7 +13,11 @@ FIXTURE = Path(__file__).parents[2] / "fixtures" / "agent_backends" / "fake_code
 
 
 def test_help_lists_foundation_commands() -> None:
-    result = runner.invoke(build_cli(), ["--help"])
+    result = runner.invoke(
+        build_cli(),
+        ["--help"],
+        env={"FORCE_COLOR": None, "NO_COLOR": "1"},
+    )
 
     assert result.exit_code == ExitCode.SUCCESS
     assert "--version" in result.output

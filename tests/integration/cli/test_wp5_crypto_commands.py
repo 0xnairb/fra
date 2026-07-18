@@ -40,7 +40,11 @@ sandbox = "read-only"
 
 
 def test_crypto_command_exposes_bounded_typed_options() -> None:
-    result = runner.invoke(build_cli(), ["research", "crypto", "--help"])
+    result = runner.invoke(
+        build_cli(),
+        ["research", "crypto", "--help"],
+        env={"FORCE_COLOR": None, "NO_COLOR": "1"},
+    )
 
     assert result.exit_code == ExitCode.SUCCESS
     assert "--horizon-days" in result.output
