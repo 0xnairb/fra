@@ -8,16 +8,14 @@ FRA is research software. It has no brokerage, custody, trading, or financial-ac
 
 ## Status
 
-FRA is under active implementation. WP0 and WP1 provide the packaged CLI, configuration boundary,
-domain kernel, ports, deterministic fakes, and initial quality gates. Later work-package components
-exist, but WP2 through WP9 remain in convergence until their documented end-to-end contracts and
-exit gates are satisfied. In particular, do not treat fixture-backed adapters or stage checkpoints
-alone as proof that the corresponding user workflow is complete.
+The WP2-WP9 implementation completed its documented release-closure gates on 2026-07-19. The
+evidence includes the hermetic suite and package gates, installed Codex and Claude structured-output
+and allocation workflows, the live CoinGecko plus Codex crypto workflow, a clean committed
+checkout, and the Linux, macOS, and Windows CI matrix. The executable mapping is maintained in the
+[WP2-WP9 release traceability matrix](docs/12-release-traceability.md).
 
-The authoritative remaining delivery gates are in the
-[implementation plan](docs/10-implementation-plan.md). This status section is intentionally
-conservative: a work package is complete only when its observable command, durable Markdown
-artifacts, replacement boundaries, and hermetic release tests all agree with the design documents.
+There is no documented WP10. Any next delivery phase begins with a new approved plan rather than
+implicitly extending the completed work-package sequence.
 
 The CLI exposes `init`, `research run`, `research crypto`, `research crisis`,
 `research allocation`, `resume`, `dashboard`, `signals`, `forecasts`, `forecast show`, `monitor`,

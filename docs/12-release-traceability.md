@@ -8,16 +8,18 @@ Linux, macOS, and Windows; installed-agent and live-source gates are explicit op
 
 | Gate | Evidence on 2026-07-19 |
 | --- | --- |
-| Default hermetic suite | 169 passed, 5 operator tests skipped |
+| Default hermetic suite | 170 passed, 5 operator tests skipped |
 | Format, lint, and types | `ruff format --check`, `ruff check`, and strict `mypy` passed |
 | Package and CLI | sdist/wheel build, version/help, and example-config doctor passed |
 | Installed structured output | Codex and Claude smokes both passed |
 | Same installed-agent WP8 workflow | Codex and Claude fixture-source allocation runs both passed |
 | Live WP5 workflow | Passed against CoinGecko Demo and installed Codex: 1 passed in 337.19 seconds |
-| Hosted cross-platform matrix | Configured for Linux, macOS, and Windows; the forced-color regression suite passes locally, but the current matrix is unexecuted until the release candidate is pushed |
-| Clean committed checkout | Passed from a fresh local clone of the committed release candidate |
+| Hosted cross-platform matrix | Passed on Linux, macOS, and Windows for commit `ecf950b`; [CI run 29669899869](https://github.com/0xnairb/fra/actions/runs/29669899869) |
+| Clean committed checkout | Passed from a fresh local clone and from clean hosted checkouts of the committed release candidate |
 
-The README status remains conservative while the required hosted cross-platform gate is unexecuted.
+All documented release-closure gates are now satisfied, so the README status reflects WP2-WP9
+completion. The five default skips are the explicit operator tests recorded as passing separately
+above; they are not counted as hermetic passes.
 
 ## Release commands
 
