@@ -13,11 +13,11 @@ Linux, macOS, and Windows; installed-agent and live-source gates are explicit op
 | Package and CLI | sdist/wheel build, version/help, and example-config doctor passed |
 | Installed structured output | Codex and Claude smokes both passed |
 | Same installed-agent WP8 workflow | Codex and Claude fixture-source allocation runs both passed |
-| Live WP5 workflow | Unexecuted: `COINGECKO_DEMO_API_KEY` was not available in the environment |
+| Live WP5 workflow | Passed against CoinGecko Demo and installed Codex: 1 passed in 337.19 seconds |
 | Hosted cross-platform matrix | Configured for Linux, macOS, and Windows; the forced-color regression suite passes locally, but the current matrix is unexecuted until the release candidate is pushed |
 | Clean committed checkout | Passed from a fresh local clone of the committed release candidate |
 
-The README status remains conservative while any required operator or hosted gate is unexecuted.
+The README status remains conservative while the required hosted cross-platform gate is unexecuted.
 
 ## Release commands
 

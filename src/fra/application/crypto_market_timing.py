@@ -156,6 +156,7 @@ class CryptoMarketTimingWorkflow:
         assets: list[dict[str, object]] = []
         routing: dict[str, object] = {}
         attributions: set[str] = set()
+        knowledge_cutoff_at = now
         for query in ("bitcoin", "ethereum"):
 
             async def fetch(
@@ -174,13 +175,15 @@ class CryptoMarketTimingWorkflow:
                 return instrument, envelope
 
             execution = await self._router.execute(requirement, fetch)
+            collected_at = self._clock.now()
+            knowledge_cutoff_at = collected_at
             routing[query] = _routing_record(execution.decision)
             selected_asset: dict[str, object] | None = None
             for routed in execution.values:
                 instrument, envelope = routed.value
                 if envelope.descriptor.required_attribution:
                     attributions.add(envelope.descriptor.required_attribution)
-                if envelope.is_stale or now - envelope.value.observations[
+                if envelope.is_stale or collected_at - envelope.value.observations[
                     -1
                 ].observed_at > timedelta(days=2):
                     raise ResearchIncompleteError(f"{query} market history is stale")
@@ -193,21 +196,40 @@ class CryptoMarketTimingWorkflow:
                         f"{routed.provider_id} {query} daily market history in {currency.code}"
                     ),
                     envelope=envelope,
-                    knowledge_cutoff_at=now,
-                    created_at=now,
+                    knowledge_cutoff_at=collected_at,
+                    created_at=collected_at,
                 )
                 evidence.append(cast(Evidence[object], item))
                 if selected_asset is not None:
                     continue
                 metrics = crypto_market_metrics(envelope.value)
                 calculation = _calculation(
-                    self._ids.calculation_id(), run, evidence_id, metrics, lookback_days, now
+                    self._ids.calculation_id(),
+                    run,
+                    evidence_id,
+                    metrics,
+                    lookback_days,
+                    collected_at,
                 )
                 calculations.append(calculation)
+                first_observation = envelope.value.observations[0]
+                last_observation = envelope.value.observations[-1]
                 selected_asset = {
                     "subject_id": str(instrument.id),
                     "evidence_id": str(evidence_id),
                     "calculation_id": str(calculation.id),
+                    "currency": currency.code,
+                    "resolution": "daily",
+                    "first_observed_at": first_observation.observed_at.isoformat(),
+                    "last_observed_at": last_observation.observed_at.isoformat(),
+                    "available_at": envelope.available_at.isoformat(),
+                    "retrieved_at": envelope.retrieved_at.isoformat(),
+                    "first_price": str(first_observation.price),
+                    "last_price": str(last_observation.price),
+                    "first_market_cap": _optional_decimal(first_observation.market_cap),
+                    "last_market_cap": _optional_decimal(last_observation.market_cap),
+                    "first_volume": _optional_decimal(first_observation.volume),
+                    "last_volume": _optional_decimal(last_observation.volume),
                     "total_return": str(metrics.total_return),
                     "annualized_volatility": str(metrics.annualized_volatility),
                     "current_drawdown": str(metrics.current_drawdown),
@@ -223,6 +245,33 @@ class CryptoMarketTimingWorkflow:
             evidence=tuple(evidence),
             calculations=tuple(calculations),
             durable_result={
+                "declared_inputs": {
+                    "asset_scope": parameters["asset_scope"].split(","),
+                    "currency": currency.code,
+                    "horizon_days": int(parameters["horizon_days"]),
+                    "horizon_semantics": "forward interpretation horizon",
+                    "lookback_days": lookback_days,
+                    "lookback_semantics": "bounded historical measurement window",
+                    "risk_semantics": "categorical interpretation constraint",
+                    "risk_tolerance": parameters["risk_tolerance"],
+                },
+                "collection_window": {
+                    "requested_start_at": start_at.isoformat(),
+                    "requested_end_at": now.isoformat(),
+                    "knowledge_cutoff_at": knowledge_cutoff_at.isoformat(),
+                    "resolution": "daily",
+                },
+                "calculation_conventions": {
+                    "formula_version": 1,
+                    "total_return": "last_price / first_price - 1",
+                    "periodic_return": "current_price / previous_price - 1",
+                    "annualized_volatility": (
+                        "sample standard deviation of periodic returns * sqrt(365)"
+                    ),
+                    "annualization_periods": 365,
+                    "current_drawdown": "last_price / running_peak_price - 1",
+                    "maximum_drawdown": "minimum(price / running_peak_price - 1)",
+                },
                 "assets": assets,
                 "routing": routing,
                 "attribution": sorted(attributions),
@@ -334,6 +383,10 @@ def _calculation(
     )
 
 
+def _optional_decimal(value: Decimal | None) -> str | None:
+    return str(value) if value is not None else None
+
+
 def _routing_record(decision: RoutingDecision) -> dict[str, object]:
     return {
         "policy_version": decision.policy_version,
@@ -413,6 +466,9 @@ def _render_report(
         for item in assets
     )
     routing = collection.get("routing", {})
+    collection_window = collection.get("collection_window", {})
+    calculation_conventions = collection.get("calculation_conventions", {})
+    snapshot_rows = _snapshot_rows(collection.get("assets"))
     agent_summary = str(synthesis.get("summary", "No agent synthesis available."))
     return (
         "# BTC and ETH Market-Timing Research\n\n"
@@ -421,6 +477,17 @@ def _render_report(
         f"- Risk tolerance: {parameters['risk_tolerance']}\n"
         f"- Currency: {parameters['currency']}\n"
         f"- Lookback: {parameters['lookback_days']} days\n\n"
+        "The horizon is the forward interpretation horizon; the lookback is the bounded "
+        "historical measurement window. Risk tolerance is a categorical interpretation "
+        "constraint and does not imply an invented numeric suitability threshold.\n\n"
+        "## Evidence Window\n\n"
+        f"```json\n{json.dumps(collection_window, indent=2, sort_keys=True)}\n```\n\n"
+        "## Latest Persisted Observations\n\n"
+        "| Subject | Observed at | Price | Market cap | Volume | Currency |\n"
+        "| --- | --- | ---: | ---: | ---: | --- |\n"
+        f"{snapshot_rows}\n\n"
+        "## Calculation Conventions\n\n"
+        f"```json\n{json.dumps(calculation_conventions, indent=2, sort_keys=True)}\n```\n\n"
         "## Deterministic Evidence and Calculations\n\n"
         "| Subject | Total return | Annualized volatility | Maximum drawdown | "
         "Evidence | Calculation |\n"
@@ -445,3 +512,23 @@ def _render_report(
         + "\n".join(f"- {item}" for item in signal.limitations)
         + "\n"
     )
+
+
+def _snapshot_rows(value: object) -> str:
+    if not isinstance(value, list):
+        return "| — | — | — | — | — | — |"
+    rows = []
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        rows.append(
+            "| {subject} | {observed_at} | {price} | {market_cap} | {volume} | {currency} |".format(
+                subject=item.get("subject_id", "—"),
+                observed_at=item.get("last_observed_at", "—"),
+                price=item.get("last_price", "—"),
+                market_cap=item.get("last_market_cap", "—"),
+                volume=item.get("last_volume", "—"),
+                currency=item.get("currency", "—"),
+            )
+        )
+    return "\n".join(rows) if rows else "| — | — | — | — | — | — |"

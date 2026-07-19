@@ -1,4 +1,5 @@
 import asyncio
+import json
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
@@ -21,14 +22,14 @@ from fra.application.research_orchestrator import ResearchOrchestrator
 from fra.application.research_workflows import ResearchRegistry
 from fra.application.source_platform import SourceRegistry, SourceRouter
 from fra.domain.errors import SourceQuotaExceededError
-from fra.domain.ids import InstrumentId
+from fra.domain.ids import EvidenceId, InstrumentId
 from fra.domain.instruments import AssetClass, Currency, InstrumentRef, ProviderAlias
 from fra.domain.market_data import HistoryRequest, InstrumentMatch, MarketObservation, MarketSeries
 from fra.domain.research import ResearchMandateType, ResearchRunState
 from fra.domain.shared import FailureKind
 from fra.domain.signals import SignalStatus
 from fra.domain.sources import DataEnvelope, SourceRole
-from fra.ports.agent_backend import StructuredAgentOutput
+from fra.ports.agent_backend import AgentStageType, StructuredAgentOutput
 
 NOW = datetime(2026, 7, 19, 8, tzinfo=UTC)
 
@@ -41,7 +42,7 @@ def test_wp5_crypto_workflow_is_reconstructable_from_markdown(tmp_path: Path) ->
     source_status = MarkdownSourceStatusRepository(workspace)
     clock = FixedClock(NOW)
     ids = SequenceIdGenerator()
-    provider = _provider()
+    provider = _AdvancingProvider(clock)
     source_registry = SourceRegistry()
     source_registry.register(provider, roles=(SourceRole.PRIMARY,))
     router = SourceRouter(source_registry, policy_version="fra.source_policy.v1")
@@ -173,14 +174,58 @@ def test_wp5_crypto_workflow_is_reconstructable_from_markdown(tmp_path: Path) ->
     assert (run_dir / "verification.md").is_file()
     assert (run_dir / "report.md").is_file()
     report = (run_dir / "report.md").read_text()
+    collection_checkpoint = next(item for item in run.stage_checkpoints if item.stage == "collect")
+    collection = json.loads(collection_checkpoint.result_json)
+    assert collection["declared_inputs"] == {
+        "asset_scope": ["bitcoin", "ethereum"],
+        "currency": "USD",
+        "horizon_days": 365,
+        "horizon_semantics": "forward interpretation horizon",
+        "lookback_days": 30,
+        "lookback_semantics": "bounded historical measurement window",
+        "risk_semantics": "categorical interpretation constraint",
+        "risk_tolerance": "medium",
+    }
+    assert collection["collection_window"] == {
+        "knowledge_cutoff_at": (NOW + timedelta(seconds=2)).isoformat(),
+        "requested_end_at": NOW.isoformat(),
+        "requested_start_at": (NOW - timedelta(days=30)).isoformat(),
+        "resolution": "daily",
+    }
+    assert collection["calculation_conventions"]["annualization_periods"] == 365
+    assert collection["calculation_conventions"]["formula_version"] == 1
+    first_asset = collection["assets"][0]
+    assert first_asset["currency"] == "USD"
+    assert first_asset["resolution"] == "daily"
+    assert first_asset["first_price"] == "100"
+    assert first_asset["last_price"] == "130"
+    assert first_asset["first_observed_at"] == (NOW - timedelta(days=30)).isoformat()
+    assert first_asset["last_observed_at"] == NOW.isoformat()
+    assert first_asset["available_at"] == (NOW + timedelta(seconds=1)).isoformat()
+    analyze_request = next(
+        item for item in agent.requests if item.stage_type is AgentStageType.ANALYZE
+    )
+    verify_request = next(
+        item for item in agent.requests if item.stage_type is AgentStageType.VERIFY
+    )
+    assert '"declared_inputs"' in analyze_request.instructions
+    assert "forward-looking" in analyze_request.instructions
+    assert "do not require an invented numeric suitability threshold" in verify_request.instructions
     assert "Source Routing and Attribution" in report
     assert "Deterministic Evidence and Calculations" in report
+    assert "Evidence Window" in report
+    assert "Calculation Conventions" in report
     assert "fake_market" in report
     signal = signals.list()[0]
     assert signal.status is SignalStatus.ACTIVE
     assert signal.evidence_ids
     assert signal.calculation_ids
     assert (workspace.root / f"signals/{signal.id}/v001.md").is_file()
+    persisted_evidence = tuple(
+        research.get_evidence(run.id, EvidenceId(value))
+        for value in ("evidence_0006", "evidence_0008")
+    )
+    assert all(item.knowledge_cutoff_at >= item.available_at for item in persisted_evidence)
 
     restarted = DashboardService(
         MarkdownResearchRepository(workspace),
@@ -346,6 +391,50 @@ class _QuotaProvider(FakeMarketDataProvider):
         raise SourceQuotaExceededError("fixture quota exhausted")
 
 
+class _AdvancingProvider(FakeMarketDataProvider):
+    """Models a live fetch whose retrieval completes after collection starts."""
+
+    def __init__(self, clock: FixedClock) -> None:
+        bitcoin = _instrument("bitcoin", "Bitcoin", "BTC")
+        ethereum = _instrument("ethereum", "Ethereum", "ETH")
+        descriptor = FakeMarketDataProvider().descriptor()
+        available_at = NOW + timedelta(seconds=1)
+        super().__init__(
+            matches=(
+                InstrumentMatch(bitcoin, Decimal("1")),
+                InstrumentMatch(ethereum, Decimal("1")),
+            ),
+            histories=(
+                (
+                    bitcoin,
+                    _envelope(
+                        descriptor,
+                        bitcoin,
+                        Decimal("100"),
+                        Decimal("130"),
+                        available_at=available_at,
+                    ),
+                ),
+                (
+                    ethereum,
+                    _envelope(
+                        descriptor,
+                        ethereum,
+                        Decimal("50"),
+                        Decimal("55"),
+                        available_at=available_at,
+                    ),
+                ),
+            ),
+            now=NOW,
+        )
+        self._clock = clock
+
+    async def history(self, request: HistoryRequest) -> DataEnvelope[MarketSeries]:
+        self._clock.advance(timedelta(seconds=1))
+        return await super().history(request)
+
+
 def _instrument(coin_id: str, name: str, symbol: str) -> InstrumentRef:
     return InstrumentRef(
         id=InstrumentId(f"crypto:{coin_id}"),
@@ -362,6 +451,8 @@ def _envelope(
     instrument: InstrumentRef,
     first_price: Decimal,
     final_price: Decimal,
+    *,
+    available_at: datetime = NOW,
 ) -> DataEnvelope[MarketSeries]:
     from fra.domain.sources import SourceDescriptor
 
@@ -382,8 +473,8 @@ def _envelope(
         descriptor=descriptor,
         provider_record_id=instrument.alias_for("coingecko") or "missing",
         source="https://fixture.test/market-chart",
-        available_at=NOW,
-        retrieved_at=NOW,
+        available_at=available_at,
+        retrieved_at=available_at,
         provider_subject_ids=(instrument.alias_for("coingecko") or "missing",),
         fra_subject_ids=(instrument.id,),
         observed_at=NOW,

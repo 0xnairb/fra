@@ -76,7 +76,7 @@ fra/
 │   │   ├── source_plugins.py
 │   │   └── in_memory.py
 │   ├── security/
-│   └── templates/prompts/v1/
+│   └── templates/prompts/{v1,v2}/
 └── tests/
     ├── unit/
     ├── contract/
@@ -139,7 +139,9 @@ reverse the dependency direction.
 
 ### `templates/`
 
-Contains versioned prompt resources. Prompt versions are recorded in research-run metadata.
+Contains immutable versioned prompt resources. New runs use the latest version while research-run
+metadata records the version used for each stage; `v1` remains available after the `v2` crypto
+contract clarification.
 Markdown rendering belongs to storage adapters because the rendered format is a repository concern.
 
 ## Dependency Direction

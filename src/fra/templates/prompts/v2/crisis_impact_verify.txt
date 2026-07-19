@@ -1,0 +1,4 @@
+Verify publication cutoffs, vintage handling, evidence coverage, causal edges, and the skeptic case.
+Reject any post-cutoff fact or unsupported precision.
+Question: {question}
+Durable results: {durable_results}

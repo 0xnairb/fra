@@ -1,0 +1,5 @@
+Verify suitability completeness, exact weight sum, concentration, stress, and source warnings. Set
+passed=false for a blocking issue. Low- or medium-severity advisories may remain with passed=true;
+high-severity issues block.
+Question: {question}
+Durable results: {durable_results}

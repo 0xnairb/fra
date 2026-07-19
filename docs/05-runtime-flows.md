@@ -110,13 +110,15 @@ Question:
 
 > Is it a good time to invest in crypto?
 
-1. Collect or confirm investment horizon, loss tolerance, liquidity need, and asset scope.
-2. The plan requests current and historical prices, volume, market capitalization, relevant macro series, and optional on-chain metrics.
-3. The router may select CoinGecko for price evidence and Coin Metrics Community for a permitted on-chain cross-check. It records any personal-use or non-commercial restriction.
-4. Deterministic analytics calculate returns, volatility, drawdowns, trend measures, and concentration.
-5. The agent builds bullish, base, and bearish scenarios.
-6. Verification checks timestamps, numerical statements, missing risks, and claims of certainty.
-7. The report gives conditions, scenarios, and risk limits—not an unconditional “buy now.”
+1. Collect the forward interpretation horizon, categorical risk tolerance, bounded historical lookback, currency, and BTC/ETH asset scope. The lookback does not need to equal the horizon.
+2. The plan requests only price, volume, market capitalization, and deterministic return, volatility, and drawdown evidence required by the first release.
+3. The router selects permitted CoinGecko evidence and records its local-evaluation policy, attribution, and routing decision.
+4. For current research, the workflow freezes the knowledge cutoff after retrieval so every selected envelope was actually available by that cutoff. A user-supplied historical cutoff remains immutable and rejects later evidence.
+5. The collect checkpoint preserves the declared-input semantics, requested and observed windows, first/latest source values, currency, retrieval times, and formula conventions alongside evidence and calculation IDs.
+6. Deterministic analytics calculate point-to-point return, sample volatility annualized at 365 periods, current drawdown, and maximum drawdown.
+7. The agent builds bullish, base, and bearish scenarios from that durable contract. It may retain non-blocking advisories but cannot waive a high-severity evidence gap.
+8. Verification checks timestamps, numerical statements, missing risks, and claims of certainty.
+9. The report gives conditions, scenarios, and risk limits—not an unconditional “buy now.”
 
 ## Asset-Allocation Flow
 

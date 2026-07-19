@@ -145,6 +145,8 @@ Is it a good time to invest in crypto?
 
 `run.md` is the aggregate root and workflow checkpoint. A state transition is complete only after this file is atomically updated.
 
+A collection checkpoint must contain the bounded, agent-visible audit record needed by later stages, not only opaque artifact IDs. For crypto research this includes declared horizon/risk/lookback semantics, the requested and observed evidence window, currency, first/latest persisted source values, availability and retrieval times, routing, attribution, and deterministic formula conventions. Full normalized observations remain in separately addressable evidence files.
+
 ## Mandate
 
 File: `mandate.md`
@@ -471,6 +473,8 @@ Recommended stable sections:
 10. Sources and evidence links
 
 The report is the main human-readable run result. Signals, evidence, claims, calculations, and scenarios remain separately addressable Markdown results.
+
+Crypto reports additionally render **Declared Inputs**, **Evidence Window**, **Latest Persisted Observations**, and **Calculation Conventions** so the human-readable result exposes the same bounded contract used by agent analysis and verification.
 
 ## Profiles and Portfolios
 

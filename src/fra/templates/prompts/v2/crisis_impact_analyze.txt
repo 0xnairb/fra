@@ -1,0 +1,4 @@
+Analyze causal transmission from event to country, commodity, industry, and company.
+Use deterministic calculations for magnitudes and state the strongest counter-scenario.
+Question: {question}
+Durable results: {durable_results}

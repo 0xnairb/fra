@@ -1,0 +1,3 @@
+Plan the allocation research around confirmed suitability fields and persisted market evidence.
+Question: {question}
+Durable results: {durable_results}

@@ -1,0 +1,6 @@
+Plan a bounded research workflow for this question:
+
+{question}
+
+Use no hidden context. Return an objective, ordered tasks, and data requirements.
+Durable prior results: {durable_results}

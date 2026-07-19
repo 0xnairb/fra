@@ -1,0 +1,6 @@
+Plan a bounded BTC and ETH market-regime assessment for this question:
+
+{question}
+
+Use the declared horizon and risk tolerance. The horizon is the forward interpretation horizon; the lookback is the bounded historical measurement window and does not need to equal the horizon. Treat risk tolerance as a categorical interpretation constraint without inventing a numeric suitability threshold. Request only price, market-cap, volume, and deterministic return, volatility, and drawdown calculations. Do not recommend a transaction. Return an objective, ordered tasks, and data requirements.
+Durable prior results: {durable_results}

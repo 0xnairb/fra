@@ -1,0 +1,6 @@
+Analyze only the persisted BTC and ETH evidence and deterministic calculations for this question:
+
+{question}
+
+Use the persisted declared_inputs, collection_window, asset observations, and calculation_conventions as the authoritative assessment contract. The horizon is forward-looking while lookback is the historical measurement window; do not reject a valid assessment merely because those durations differ. Apply the categorical risk tolerance without inventing a numeric suitability threshold. Build bullish, base, and bearish scenarios. Every material statement must be traceable to an evidence or calculation ID. Do not invent data or issue an unconditional buy instruction. Return claims, scenarios, and open questions.
+Durable prior results: {durable_results}

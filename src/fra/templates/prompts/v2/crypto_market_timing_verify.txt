@@ -1,0 +1,6 @@
+Verify the durable BTC and ETH market-regime analysis for this question:
+
+{question}
+
+Use the persisted declared_inputs, collection_window, asset observations, and calculation_conventions to verify horizon, risk, freshness, currency, source values, and reproducibility. The horizon is the forward interpretation horizon and the lookback is the historical measurement window, so they need not match. Categorical risk tolerance is the required interpretation constraint; do not require an invented numeric suitability threshold. Reject unsupported numerical claims, stale evidence, missing currency or horizon, certainty language, and any claim without a persisted evidence or calculation ID. Set passed=false for a high-severity blocking issue. Low- or medium-severity advisories may remain in the issue list with passed=true. Return whether the analysis passes and a complete issue list.
+Durable prior results: {durable_results}

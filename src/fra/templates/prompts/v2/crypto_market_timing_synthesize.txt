@@ -1,0 +1,6 @@
+Synthesize the verified BTC and ETH market-regime results for this question:
+
+{question}
+
+Explain bullish, base, and bearish conditions plus risk limits. Cite the durable evidence and calculation IDs present in the supplied results. This is research, not an action instruction. Return a title, concise summary, and explicit limitations.
+Durable prior results: {durable_results}

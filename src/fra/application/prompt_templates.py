@@ -7,7 +7,7 @@ from importlib.resources import files
 
 
 class PromptTemplateRegistry:
-    VERSION = 1
+    VERSION = 2
 
     def render(
         self,
@@ -18,7 +18,7 @@ class PromptTemplateRegistry:
         repair_error: str | None = None,
         workflow: str | None = None,
     ) -> str:
-        root = files("fra.templates.prompts.v1")
+        root = files(f"fra.templates.prompts.v{self.VERSION}")
         workflow_name = f"{workflow}_{stage}.txt" if workflow else None
         candidate = root.joinpath(workflow_name) if workflow_name else None
         template_path = (

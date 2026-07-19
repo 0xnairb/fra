@@ -212,10 +212,10 @@ def test_orchestrator_checkpoints_all_stages_and_restart_uses_only_durable_state
     )
     assert completed.agent_metadata is not None
     assert completed.agent_metadata.prompt_versions == (
-        ("plan", 1),
-        ("analyze", 1),
-        ("verify", 1),
-        ("synthesize", 1),
+        ("plan", 2),
+        ("analyze", 2),
+        ("verify", 2),
+        ("synthesize", 2),
     )
 
     second_backend = FakeAgentBackend(results=())
