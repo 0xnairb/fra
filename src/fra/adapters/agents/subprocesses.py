@@ -10,6 +10,19 @@ import sys
 from collections.abc import Mapping
 from contextlib import suppress
 from pathlib import Path
+from typing import Protocol, cast
+
+
+class _PosixOs(Protocol):
+    def killpg(self, pid: int, signal_number: int) -> None: ...
+
+
+class _PosixSignal(Protocol):
+    SIGKILL: int
+
+
+_posix_os = cast(_PosixOs, os)
+_posix_signal = cast(_PosixSignal, signal)
 
 
 def executable_command(binary: str, environment: Mapping[str, str]) -> tuple[str, ...]:
@@ -29,14 +42,14 @@ async def terminate_process_tree(process: asyncio.subprocess.Process) -> None:
         await _terminate_windows_process_tree(process)
         return
     try:
-        os.killpg(process.pid, signal.SIGTERM)
+        _posix_os.killpg(process.pid, signal.SIGTERM)
     except ProcessLookupError:
         return
     try:
         await asyncio.wait_for(process.wait(), timeout=0.5)
     except TimeoutError:
         with suppress(ProcessLookupError):
-            os.killpg(process.pid, signal.SIGKILL)
+            _posix_os.killpg(process.pid, _posix_signal.SIGKILL)
         await process.wait()
 
 

@@ -9,11 +9,30 @@ from contextlib import suppress
 from io import TextIOWrapper
 from pathlib import Path
 from types import TracebackType
+from typing import Protocol, cast
 
+
+class _FileLockModule(Protocol):
+    LOCK_EX: int
+    LOCK_UN: int
+
+    def flock(self, descriptor: int, operation: int) -> None: ...
+
+
+class _WindowsFileLockModule(Protocol):
+    LK_LOCK: int
+    LK_UNLCK: int
+
+    def locking(self, descriptor: int, operation: int, size: int) -> None: ...
+
+
+fcntl: _FileLockModule | None
 try:
-    import fcntl
+    import fcntl as _fcntl
 except ImportError:  # pragma: no cover - exercised on Windows
-    fcntl = None  # type: ignore[assignment]
+    fcntl = None
+else:
+    fcntl = cast(_FileLockModule, _fcntl)
 
 
 class AggregateLock:
@@ -53,8 +72,10 @@ class AtomicFileWriter:
         )
         temporary = Path(temporary_name)
         try:
-            with suppress(AttributeError, OSError):
-                os.fchmod(descriptor, 0o600)
+            fchmod = getattr(os, "fchmod", None)
+            if fchmod is not None:
+                with suppress(OSError):
+                    fchmod(descriptor, 0o600)
             with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as handle:
                 handle.write(content)
                 handle.flush()
@@ -77,8 +98,9 @@ def _lock(handle: TextIOWrapper) -> None:
     if fcntl is not None:
         fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
         return
-    import msvcrt  # pragma: no cover - Windows only
+    import msvcrt as _msvcrt  # pragma: no cover - Windows only
 
+    msvcrt = cast(_WindowsFileLockModule, _msvcrt)
     handle.seek(0)
     if handle.read(1) == "":
         handle.write("0")
@@ -91,7 +113,8 @@ def _unlock(handle: TextIOWrapper) -> None:
     if fcntl is not None:
         fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
         return
-    import msvcrt  # pragma: no cover - Windows only
+    import msvcrt as _msvcrt  # pragma: no cover - Windows only
 
+    msvcrt = cast(_WindowsFileLockModule, _msvcrt)
     handle.seek(0)
     msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
