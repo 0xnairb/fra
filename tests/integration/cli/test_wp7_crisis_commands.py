@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from rich.text import Text
 from typer.testing import CliRunner
 
 from fra.bootstrap import build_cli
@@ -16,13 +17,13 @@ def test_crisis_command_requires_cutoff_and_horizon_and_persists_blocked_run(
     workspace = tmp_path / "workspace"
     config.write_text(
         f'''[workspace]
-root = "{workspace}"
+root = "{workspace.as_posix()}"
 
 [agent]
 provider = "codex_cli"
 
 [agent.options]
-binary = "{FIXTURE}"
+binary = "{FIXTURE.as_posix()}"
 sandbox = "read-only"
 '''
     )
@@ -40,13 +41,10 @@ sandbox = "read-only"
 
 
 def test_crisis_command_exposes_frozen_case_inputs() -> None:
-    result = runner.invoke(
-        build_cli(),
-        ["research", "crisis", "--help"],
-        env={"FORCE_COLOR": None, "NO_COLOR": "1"},
-    )
+    result = runner.invoke(build_cli(), ["research", "crisis", "--help"])
+    output = Text.from_ansi(result.output).plain
 
     assert result.exit_code == ExitCode.SUCCESS
-    assert "--knowledge-cutoff" in result.output
-    assert "--horizon-days" in result.output
-    assert "--company-cik" in result.output
+    assert "--knowledge-cutoff" in output
+    assert "--horizon-days" in output
+    assert "--company-cik" in output

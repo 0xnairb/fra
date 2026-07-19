@@ -1,8 +1,11 @@
+import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
-from fra.adapters.storage.atomic_files import AtomicFileWriter
+from fra.adapters.storage import atomic_files
+from fra.adapters.storage.atomic_files import AggregateLock, AtomicFileWriter
 from fra.adapters.storage.markdown_codec import MarkdownCodec
 from fra.domain.errors import RepositoryCorruptError
 
@@ -56,6 +59,26 @@ def test_atomic_writer_preserves_previous_file_when_replace_is_interrupted(
 
     assert target.read_text() == "previous"
     assert tuple(tmp_path.glob(".aggregate.md.*.tmp")) == ()
+
+
+def test_aggregate_lock_uses_readable_handle_for_windows(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    calls: list[tuple[int, int]] = []
+    fake_msvcrt = SimpleNamespace(
+        LK_LOCK=1,
+        LK_UNLCK=2,
+        locking=lambda _descriptor, operation, size: calls.append((operation, size)),
+    )
+    monkeypatch.setattr(atomic_files, "fcntl", None)
+    monkeypatch.setitem(sys.modules, "msvcrt", fake_msvcrt)
+    path = tmp_path / "aggregate.lock"
+
+    with AggregateLock(path):
+        pass
+
+    assert path.read_text() == "0"
+    assert calls == [(fake_msvcrt.LK_LOCK, 1), (fake_msvcrt.LK_UNLCK, 1)]
 
 
 def test_checked_in_schema_and_interrupted_document_fixtures() -> None:

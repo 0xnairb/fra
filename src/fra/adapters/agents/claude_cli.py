@@ -6,14 +6,11 @@ import asyncio
 import inspect
 import json
 import os
-import signal
-import sys
 from collections.abc import Mapping, Sequence
-from contextlib import suppress
 from datetime import UTC, datetime
-from pathlib import Path
 from typing import cast
 
+from fra.adapters.agents.subprocesses import executable_command, terminate_process_tree
 from fra.domain.shared import Failure, FailureKind, HealthState, HealthStatus
 from fra.ports.agent_backend import (
     AgentCapabilities,
@@ -152,13 +149,14 @@ class ClaudeCliAgentAdapter:
                 started_at,
                 Failure(FailureKind.ADAPTER_UNAVAILABLE, "Claude binary is unavailable"),
             )
+        communication = asyncio.create_task(process.communicate(request.instructions.encode()))
         try:
             stdout, stderr = await asyncio.wait_for(
-                process.communicate(request.instructions.encode()),
-                timeout=request.timeout_seconds,
+                asyncio.shield(communication), timeout=request.timeout_seconds
             )
         except TimeoutError:
-            await _terminate(process)
+            await terminate_process_tree(process)
+            await communication
             return self._failure(
                 started_at,
                 Failure(
@@ -170,7 +168,8 @@ class ClaudeCliAgentAdapter:
                 ),
             )
         except asyncio.CancelledError:
-            await _terminate(process)
+            await terminate_process_tree(process)
+            await communication
             return AgentStageResult(
                 AgentResultStatus.CANCELLED,
                 None,
@@ -253,10 +252,7 @@ class ClaudeCliAgentAdapter:
         return process.returncode or 0, output
 
     def _binary_command(self) -> tuple[str, ...]:
-        path = Path(self._binary)
-        if path.suffix.lower() == ".py" and path.is_file():
-            return sys.executable, str(path)
-        return (self._binary,)
+        return executable_command(self._binary, self._environment)
 
     @staticmethod
     def _failure(started_at: datetime, failure: Failure) -> AgentStageResult:
@@ -269,25 +265,6 @@ class ClaudeCliAgentAdapter:
             ended_at=datetime.now(UTC),
             failure=failure,
         )
-
-
-async def _terminate(process: asyncio.subprocess.Process) -> None:
-    if process.returncode is not None:
-        return
-    with suppress(ProcessLookupError):
-        if hasattr(os, "killpg"):
-            os.killpg(process.pid, signal.SIGTERM)
-        else:  # pragma: no cover - Windows only
-            process.terminate()
-    try:
-        await asyncio.wait_for(process.wait(), timeout=0.5)
-    except TimeoutError:
-        with suppress(ProcessLookupError):
-            if hasattr(os, "killpg"):
-                os.killpg(process.pid, signal.SIGKILL)
-            else:  # pragma: no cover - Windows only
-                process.kill()
-        await process.wait()
 
 
 def _usage(value: dict[str, object]) -> AgentUsage:

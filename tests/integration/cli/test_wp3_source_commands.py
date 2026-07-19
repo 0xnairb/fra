@@ -13,10 +13,10 @@ def _config(tmp_path: Path) -> Path:
     config = tmp_path / "fra.toml"
     config.write_text(
         f'''[workspace]
-root = "{tmp_path / "workspace"}"
+root = "{(tmp_path / "workspace").as_posix()}"
 
 [agent.options]
-binary = "{FIXTURE}"
+binary = "{FIXTURE.as_posix()}"
 
 [data_sources.manual_documents]
 enabled = true

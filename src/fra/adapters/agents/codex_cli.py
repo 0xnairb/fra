@@ -6,15 +6,13 @@ import asyncio
 import inspect
 import json
 import os
-import signal
-import sys
 import tempfile
 from collections.abc import Mapping, Sequence
-from contextlib import suppress
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, cast
 
+from fra.adapters.agents.subprocesses import executable_command, terminate_process_tree
 from fra.domain.shared import Failure, FailureKind, HealthState, HealthStatus
 from fra.ports.agent_backend import (
     AgentCapabilities,
@@ -220,7 +218,7 @@ class CodexCliAgentAdapter:
             try:
                 await asyncio.wait_for(process.wait(), timeout=request.timeout_seconds)
             except TimeoutError:
-                await self._terminate_process_group(process)
+                await terminate_process_tree(process)
                 stdout = await stdout_task
                 stderr = await stderr_task
                 del stdout
@@ -238,7 +236,7 @@ class CodexCliAgentAdapter:
                     warnings=(*parser.warnings, *self._diagnostic_warnings(stderr)),
                 )
             except asyncio.CancelledError:
-                await self._terminate_process_group(process)
+                await terminate_process_tree(process)
                 await stdout_task
                 stderr = await stderr_task
                 return AgentStageResult(
@@ -381,27 +379,6 @@ class CodexCliAgentAdapter:
             return None
         return process.returncode or 0, redact(text, secrets=self._secrets)
 
-    @staticmethod
-    async def _terminate_process_group(process: asyncio.subprocess.Process) -> None:
-        if process.returncode is not None:
-            return
-        try:
-            if hasattr(os, "killpg"):
-                os.killpg(process.pid, signal.SIGTERM)
-            else:  # pragma: no cover - Windows only
-                process.terminate()
-        except ProcessLookupError:
-            return
-        try:
-            await asyncio.wait_for(process.wait(), timeout=0.5)
-        except TimeoutError:
-            with suppress(ProcessLookupError):
-                if hasattr(os, "killpg"):
-                    os.killpg(process.pid, signal.SIGKILL)
-                else:  # pragma: no cover - Windows only
-                    process.kill()
-            await process.wait()
-
     def _diagnostic_warnings(self, stderr: str) -> tuple[str, ...]:
         text = redact(stderr.strip(), secrets=self._secrets)
         return (text,) if text else ()
@@ -414,10 +391,7 @@ class CodexCliAgentAdapter:
         return codex_home / f"{self._profile}.config.toml"
 
     def _binary_command(self) -> tuple[str, ...]:
-        path = Path(self._binary)
-        if path.suffix.lower() == ".py" and path.is_file():
-            return sys.executable, str(path)
-        return (self._binary,)
+        return executable_command(self._binary, self._environment)
 
     @staticmethod
     def _classify_failure(stderr: str) -> FailureKind:

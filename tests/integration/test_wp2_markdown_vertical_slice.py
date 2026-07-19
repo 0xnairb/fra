@@ -17,7 +17,8 @@ FIXTURE = Path(__file__).parents[1] / "fixtures" / "agent_backends" / "fake_code
 def write_config(tmp_path: Path) -> Path:
     config = tmp_path / "fra.toml"
     config.write_text(
-        f'[workspace]\nroot = "{tmp_path / "workspace"}"\n\n[agent.options]\nbinary = "{FIXTURE}"\n'
+        f'[workspace]\nroot = "{(tmp_path / "workspace").as_posix()}"\n\n'
+        f'[agent.options]\nbinary = "{FIXTURE.as_posix()}"\n'
     )
     return config
 

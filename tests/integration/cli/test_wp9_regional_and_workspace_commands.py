@@ -14,10 +14,10 @@ def _config(tmp_path: Path) -> Path:
     path = tmp_path / "fra.toml"
     path.write_text(
         f'''[workspace]
-root = "{tmp_path / "workspace"}"
+root = "{(tmp_path / "workspace").as_posix()}"
 
 [agent.options]
-binary = "{AGENT}"
+binary = "{AGENT.as_posix()}"
 '''
     )
     return path

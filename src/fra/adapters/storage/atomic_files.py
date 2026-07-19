@@ -23,7 +23,7 @@ class AggregateLock:
 
     def __enter__(self) -> AggregateLock:
         self._path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-        handle = self._path.open("a", encoding="utf-8")
+        handle = self._path.open("a+", encoding="utf-8")
         os.chmod(self._path, 0o600)
         _lock(handle)
         self._handle = handle

@@ -18,7 +18,7 @@ def test_live_coingecko_and_installed_codex_crypto_workflow(tmp_path: Path) -> N
     config = tmp_path / "fra.toml"
     config.write_text(
         f'''[workspace]
-root = "{tmp_path / "workspace"}"
+root = "{(tmp_path / "workspace").as_posix()}"
 usage_profile = "local_personal_research"
 
 [agent]

@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from rich.text import Text
 from typer.testing import CliRunner
 
 from fra.bootstrap import build_cli
@@ -13,15 +14,12 @@ FIXTURE = Path(__file__).parents[2] / "fixtures" / "agent_backends" / "fake_code
 
 
 def test_help_lists_foundation_commands() -> None:
-    result = runner.invoke(
-        build_cli(),
-        ["--help"],
-        env={"FORCE_COLOR": None, "NO_COLOR": "1"},
-    )
+    result = runner.invoke(build_cli(), ["--help"])
+    output = Text.from_ansi(result.output).plain
 
     assert result.exit_code == ExitCode.SUCCESS
-    assert "--version" in result.output
-    assert "doctor" in result.output
+    assert "--version" in output
+    assert "doctor" in output
 
 
 def test_doctor_passes_without_configuration_or_external_calls(

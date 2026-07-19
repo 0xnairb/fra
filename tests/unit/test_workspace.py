@@ -1,3 +1,4 @@
+import os
 import stat
 from pathlib import Path
 
@@ -21,7 +22,8 @@ def test_workspace_initialization_is_idempotent_and_preserves_user_content(
     assert second.created is False
     assert marker.read_text() == "keep me"
     assert (root / "workspace.md").is_file()
-    assert stat.S_IMODE(root.stat().st_mode) & 0o077 == 0
+    if os.name != "nt":
+        assert stat.S_IMODE(root.stat().st_mode) & 0o077 == 0
 
 
 def test_workspace_rejects_paths_outside_its_root(tmp_path: Path) -> None:

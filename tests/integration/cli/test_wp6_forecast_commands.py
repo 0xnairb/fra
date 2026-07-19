@@ -77,7 +77,7 @@ def test_wp6_forecast_commands_are_append_only_and_dashboard_backed_by_markdown(
     forecasts.save(resolvable)
     MarkdownExposureGraphRepository(workspace).save(_graph(now))
     config = tmp_path / "fra.toml"
-    config.write_text(f'[workspace]\nroot = "{workspace.root}"\n')
+    config.write_text(f'[workspace]\nroot = "{workspace.root.as_posix()}"\n')
 
     listed = runner.invoke(build_cli(), ["--config", str(config), "forecasts"])
     shown = runner.invoke(
